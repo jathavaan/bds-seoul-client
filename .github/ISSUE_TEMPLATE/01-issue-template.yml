@@ -1,4 +1,4 @@
-﻿name: "Issue"
+name: "Issue"
 description: "Create a new issue for the Seoul-1 repository"
 projects: [ "jathavaan/6" ]
 
