@@ -12,9 +12,11 @@ The `bds-seoul-1` repository contains an implementation of a `Scrapy` webscraper
 
 We use `Python 3.10.11` and `Ubuntu 22.04` as most frameworks and libraries have optimized for it. By using newer versions we may risk running into compatibility issues.
 
-- [Ubuntu installer](https://apps.microsoft.com/detail/9PDXGNCFSCZV?hl=neutral&gl=NO&ocid=pdpshare)
 
 ## Installation
+> [!IMPORTANT]  
+> This installation guide is only for Windows
+
 ### Python
 > [Python installer](https://www.python.org/downloads/release/python-31011/)
 
@@ -24,4 +26,15 @@ Download the `Windows installer (64-bit)` and open the `.exe`-file. In the insta
   <img src="https://github.com/user-attachments/assets/ca85b102-c5ad-4716-a108-f79f1d065492" alt="Python installer window" width="50%">
 </div>
 
-And then click **Install now** and close the installer when done. Open a new terminal window and write `python --version`.
+And then click **Install now** and close the installer when done. Open a new terminal window and write `python --version` and the expected outcome is `Python 3.10.11`.
+
+### WSL and Ubuntu
+> [Ubuntu installer](https://apps.microsoft.com/detail/9PDXGNCFSCZV?hl=neutral&gl=NO&ocid=pdpshare)
+
+WSL and Ubuntu will be used to SSH onto the RaspberryPis. It is essential that the entire team have the same versions here. Open the `WSL`-application on Windows, and run `lsb_release -a` which should print the following to the terminal
+```powershell
+Distributor ID: Ubuntu
+Description:    Ubuntu 22.04.3 LTS
+Release:        22.04
+Codename:       jammy
+```
