@@ -55,7 +55,7 @@ When connected to Einar's network use `ssh seoul-1@192.168.108.72` and `ssh seou
 
 ## Naming- and code conventions
 
-> [!INFO]  
+> [!NOTE]  
 > To ensure a clean and easy to read codebase it is important to follow naming conventions.
 
 ### Naming Conventions
