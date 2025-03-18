@@ -33,20 +33,6 @@ option **Add python.exe to PATH**. It should look something like the image below
 And then click **Install now** and close the installer when done. Open a new terminal window and
 write `python --version` and the expected outcome is `Python 3.10.11`.
 
-### WSL and Ubuntu
-
-> [Ubuntu installer](https://apps.microsoft.com/detail/9PDXGNCFSCZV?hl=neutral&gl=NO&ocid=pdpshare)
-
-WSL and Ubuntu will be used to SSH onto the RaspberryPis. It is essential that the entire team have the same versions
-here. Open the `WSL`-application on Windows, and run `lsb_release -a` which should print the following to the terminal
-
-```powershell
-Distributor ID: Ubuntu
-Description:    Ubuntu 22.04.3 LTS
-Release:        22.04
-Codename:       jammy
-```
-
 ## Connect to RaspberryPi with ssh
 
 When connected to Einar's network use `ssh seoul-1@192.168.108.72` and `ssh seoul-1@172.20.10.12`
