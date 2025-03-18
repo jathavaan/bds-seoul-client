@@ -9,11 +9,9 @@ RaspberryPi, and is a part of the term project in the course `DE7600042 Big data
 
 | Software | Required Version |
 |----------|------------------|
-| Python   | `3.10.11`        |
-| WSL      | `2`              |
-| Ubuntu   | `22.04`          |
+| Python   | `3.11.2`         |
 
-We use `Python 3.10.11` and `Ubuntu 22.04` as most frameworks and libraries have optimized for it. By using newer
+We use `Python 3.11.2`  as most frameworks and libraries have optimized for it. By using newer
 versions we may risk running into compatibility issues.
 
 ## Installation
