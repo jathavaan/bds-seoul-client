@@ -35,7 +35,8 @@ write `python --version` and the expected outcome is `Python 3.10.11`.
 
 ## Connect to RaspberryPi with ssh
 
-When connected to Einar's network use `ssh seoul-1@192.168.108.72` and `ssh seoul-1@172.20.10.12`
+All RaspberryPi's are connected to the network `Einar's S24`. The IP-addresses can be accessed from the phone. When
+connected to Einar's network use `ssh seoul-1@192.168.x.x`.
 
 ## Naming- and code conventions
 
