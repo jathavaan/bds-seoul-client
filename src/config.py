@@ -2,4 +2,4 @@
 
 
 class Config(Enum):
-    pass
+    SQLALCHEMY_DATABASE_URI = ""
