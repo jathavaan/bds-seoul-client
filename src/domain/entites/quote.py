@@ -1,15 +1,17 @@
-﻿from sqlalchemy import Column, Integer, Text
+﻿from sqlalchemy import Column, Integer, Text, ForeignKey
 from sqlalchemy.orm import relationship
 
 from ..base import Base
-from .author import Author
 
 
 class Quote(Base):
+    __tablename__ = "quotes"
+
     id: int = Column(Integer, primary_key=True, autoincrement=True, nullable=False)
     quote: str = Column(Text, nullable=False)
+    author_id: int = Column(Integer, ForeignKey("authors.id"), nullable=False)
 
-    author: Author = relationship("Quote", back_populates="author")
+    author = relationship("Quote", back_populates="author")
 
     def __init__(self, quote: str) -> None:
         super().__init__()
