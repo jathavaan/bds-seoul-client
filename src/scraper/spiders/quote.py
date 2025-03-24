@@ -1,4 +1,5 @@
 import scrapy
+from ...application.items import QuoteItem
 
 
 class QuoteSpider(scrapy.Spider):

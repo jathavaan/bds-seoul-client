@@ -3,5 +3,5 @@ from ...application.items import QuoteItem
 
 
 class QuotePipeline:
-    def process_item(self, item: QuoteItem, spider: QuoteSpider) -> None:
-        pass
+    def process_item(self, item: QuoteItem, spider: QuoteSpider) -> QuoteItem:
+        return item
