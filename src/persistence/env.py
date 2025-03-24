@@ -7,6 +7,7 @@ from alembic import context
 
 from src.domain.base import Base
 from src.domain.entites import *  # Do not remove
+from src import Config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -16,6 +17,8 @@ config = context.config
 # This line sets up loggers basically.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+config.set_main_option("sqlalchemy.url", Config.SQLALCHEMY_DATABASE_URI.value)
 
 target_metadata = Base.metadata
 
