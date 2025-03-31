@@ -6,10 +6,11 @@
 The `bds-seoul-1` repository contains an implementation of a `Scrapy` webscraper. THe scraper will be deployed on the
 RaspberryPi, and is a part of the term project in the course `DE7600042 Big data systems` at Pusan National University
 
-> [!TIP]
-> - [Coding convention](./docs/coding-convention.md)
-> - [Architecture](./docs/architecture.md)
-> - [SQLAlchemy and Alembic](./docs/database.md)
+> [!TIP] Read the docs
+
+- [Coding convention](./docs/coding-convention.md)
+- [Architecture](./docs/architecture.md)
+- [SQLAlchemy and Alembic](./docs/database.md)
 
 ## Project requirements
 
