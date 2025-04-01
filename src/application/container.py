@@ -8,20 +8,16 @@ from ..application.services.quote_service import QuoteRepositoryService, QuoteSe
 class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(modules=["src.scraper.pipelines"])
 
-    session = providers.Factory(create_db_session)
+    session = providers.Singleton(create_db_session)
 
-    author_repository_service = providers.Factory(
+    author_repository_service = providers.Singleton(
         AuthorRepositoryService,
         session=session
     )
 
-    quote_repository_service = providers.Factory(
+    quote_repository_service = providers.Singleton(
         QuoteRepositoryService,
         session=session
     )
 
-    quote_service = providers.Factory(
-        QuoteService,
-        quote_repository_service=quote_repository_service,
-        author_repository_service=author_repository_service
-    )
+    quote_service = providers.Singleton(QuoteService)

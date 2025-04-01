@@ -11,14 +11,10 @@ class Author(Base):
     name: str = Column(String(300), nullable=False)
     about_url: str = Column(String(400), nullable=False)
 
-    quotes = relationship("Author", back_populates="quotes", cascade="all, delete-orphan")
+    quotes = relationship("Quote", back_populates="author", cascade="all, delete-orphan")
 
-    def __init__(self, name: str, about_url: str, quotes: list = None):
+    def __init__(self, name: str, about_url: str):
         super().__init__()
-
-        if quotes is None:
-            quotes = []
 
         self.name = name
         self.about_url = about_url
-        self.quotes = quotes

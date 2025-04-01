@@ -2,6 +2,7 @@
 from sqlalchemy.orm import relationship
 
 from ..base import Base
+from src.domain.entites.author import Author
 
 
 class Quote(Base):
@@ -11,8 +12,9 @@ class Quote(Base):
     quote: str = Column(Text, nullable=False)
     author_id: int = Column(Integer, ForeignKey("authors.id"), nullable=False)
 
-    author = relationship("Quote", back_populates="author")
+    author = relationship("Author", back_populates="quotes")
 
-    def __init__(self, quote: str) -> None:
+    def __init__(self, quote: str, author: Author) -> None:
         super().__init__()
         self.quote = quote
+        self.author = author

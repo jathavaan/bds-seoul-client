@@ -9,6 +9,8 @@
 
 BOT_NAME = "scraper"
 
+LOG_LEVEL = "WARNING"
+
 SPIDER_MODULES = ["src.scraper.spiders"]
 NEWSPIDER_MODULE = "src.scraper.spiders"
 
