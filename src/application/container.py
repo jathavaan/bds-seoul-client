@@ -20,4 +20,8 @@ class Container(containers.DeclarativeContainer):
         session=session
     )
 
-    quote_service = providers.Factory(QuoteService)
+    quote_service = providers.Factory(
+        QuoteService,
+        quote_repository_service=quote_repository_service,
+        author_repository_service=author_repository_service
+    )
