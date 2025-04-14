@@ -1,6 +1,6 @@
 ﻿from sqlalchemy.orm import Session
 
-from ...base import RepositoryServiceBase
+from src.application.base import RepositoryServiceBase
 
 
 class QuoteRepositoryService(RepositoryServiceBase):

@@ -1,8 +1,8 @@
 ﻿from dependency_injector import containers, providers
 
-from ..persistence import create_db_session
-from ..application.services.author_service import AuthorRepositoryService
-from ..application.services.quote_service import QuoteRepositoryService, QuoteService
+from src.persistence import create_db_session
+from src.application.services.author_service import AuthorRepositoryService
+from src.application.services.quote_service import QuoteRepositoryService, QuoteService
 
 
 class Container(containers.DeclarativeContainer):
