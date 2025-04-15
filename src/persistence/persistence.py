@@ -1,8 +1,8 @@
 ﻿from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from .. import Config
-from ..domain.base import Base
+from src import Config
+from src.domain.base import Base
 
 engine = create_engine(Config.SQLALCHEMY_DATABASE_URI.value, echo=False)
 

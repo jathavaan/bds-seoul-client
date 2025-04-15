@@ -1,7 +1,7 @@
 ﻿from sqlalchemy import Column, Integer, Text, ForeignKey
 from sqlalchemy.orm import relationship
 
-from ..base import Base
+from src.domain.base import Base
 
 
 class Quote(Base):
