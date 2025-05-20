@@ -22,52 +22,31 @@ prefs = {
 options.add_experimental_option("prefs", prefs)
 driver = webdriver.Edge(service=Service(EdgeChromiumDriverManager().install()), options=options)
 
-# 1. Open a Steam game review page
-game_id = 730
-#game_id = 2007520
+
+# Choose Steam game review page
+game_id = 730      #CS
+#game_id = 413150    #Stardew Valley
+#game_id = 2007520  #Rainbow High Runway Rush
 url = f'https://steamcommunity.com/app/{game_id}/reviews/?p=1&browsefilter=mostrecent'
 driver.get(url)
 
+CUTOFF_DATE = datetime.strptime(f'2022.04.19', "%Y.%m.%d")  # Change to desired date
+TARGET_REVIEW_COUNT = 1000                                  # Change to desired amount of reviews
+
 start_time = time.time()
 
-try:
-    TARGET_REVIEW_COUNT = 100
-    REVIEW_COUNT = 0
-
-    # If it has scrolled more times than reviews to count, assume that there are no more reviews
-    while True: 
-        reviews = driver.find_elements(By.CLASS_NAME, "apphub_CardContentMain")
-        CURRENT_COUNT = len(reviews)
-        
-        if CURRENT_COUNT >= TARGET_REVIEW_COUNT:
-            print("It breaks")
-            break  
-        
-        try:
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            WebDriverWait(driver, 2).until(
-                lambda d: len(d.find_elements(By.CLASS_NAME, "apphub_CardContentMain")) > REVIEW_COUNT
-            )
-        except:
-            print("❌ No new reviews loaded. Ending scroll.")
-            break
-
-        REVIEW_COUNT = CURRENT_COUNT
-    scroll_time = time.time()
-    print(f"⏱️ Script stopped scrolling in {scroll_time - start_time:.2f} seconds")
-
-    #Handle data
-    def parse_review(i: int, container: webdriver):
+#Handle data
+def parse_review(i: int, container: webdriver):
         try:
 
-            content = container.find_element(By.CLASS_NAME, "apphub_CardTextContent").text.strip()
+            #content = container.find_element(By.CLASS_NAME, "apphub_CardTextContent").text.strip()
             date = container.find_element(By.CLASS_NAME, "date_posted").text
             hours = container.find_element(By.CLASS_NAME, "hours").text.strip()
-            helpful = container.find_element(By.CLASS_NAME, "found_helpful").text.strip()
+            #helpful = container.find_element(By.CLASS_NAME, "found_helpful").text.strip()
             recommended = container.find_element(By.CLASS_NAME, "title").text
 
             #Content handling
-            # content = content.replace(date, "").strip() #Remove the Date from the review
+            #content = content.replace(date, "").strip() #Remove the Date from the review
 
             #Date handling
             date = date.replace("Posted: ", "").strip()
@@ -105,25 +84,45 @@ try:
             }
 
         except Exception as e:
-            print("❌ Skipped ", i, " review due to missing info.")
+            print(f'❌ Skipped review {i} due to missing info.')
             print(e)
             return None
 
+try:
+    OLD_REVIEW_COUNT = 0
+    while True: 
+        try:
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            WebDriverWait(driver, 2).until(
+                lambda d: len(d.find_elements(By.CLASS_NAME, "apphub_CardContentMain")) > OLD_REVIEW_COUNT
+            )
+        except:
+            print("No new reviews loaded. Ending scroll.")
+            break
 
-    review_data = []
-    with ThreadPoolExecutor() as executor:
-        futures = [executor.submit(parse_review, i, container) for i, container in enumerate(reviews[:TARGET_REVIEW_COUNT], start=1)]
-        for future in as_completed(futures):
-            result = future.result()
-            if result:
-                review_data.append(result)
+        reviews = driver.find_elements(By.CLASS_NAME, "apphub_CardContentMain") 
+        CURRENT_REVIEW_COUNT = len(reviews)
+        
+        #Parse and send current loaded reviews
+        print(f'Sending reviews {OLD_REVIEW_COUNT} to {CURRENT_REVIEW_COUNT} to kafka')
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(parse_review, OLD_REVIEW_COUNT + i, container) for i, container in enumerate(reviews[OLD_REVIEW_COUNT:CURRENT_REVIEW_COUNT], start=1)]
+            for future in as_completed(futures):
+                result = future.result()
+                if result:
+                    CURRENT_DATE = datetime.strptime(result["date_posted"], "%Y.%m.%d")
+                    #Send to Kafka
+                    print(result)
 
-    # Save to JSON
-    with open("reviews.json", "w", encoding="utf-8") as f:
-        json.dump(review_data, f, ensure_ascii=False, indent=4)
+        if CURRENT_REVIEW_COUNT >= TARGET_REVIEW_COUNT:
+            print(f'{TARGET_REVIEW_COUNT} reviews loaded. Ending scroll.')
+            break  
+        if CURRENT_DATE < CUTOFF_DATE:
+            print(f'{CUTOFF_DATE} reached. Ending scroll.')
+            break
 
-    
-
+        OLD_REVIEW_COUNT = CURRENT_REVIEW_COUNT
+ 
 except Exception as e:
     print("❌ Failed to collect review containers.")
     print(e)
