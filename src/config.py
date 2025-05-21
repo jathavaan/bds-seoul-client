@@ -1,4 +1,5 @@
-﻿import os
+﻿import logging
+import os
 from enum import Enum
 
 from dotenv import load_dotenv
@@ -11,3 +12,8 @@ class Config(Enum):
     KAFKA_REVIEW_TOPIC = "reviews"
     KAFKA_LAST_SCRAPED_DATE_REQ_TOPIC = "last_scraped_date_requests"
     KAFKA_LAST_SCRAPED_DATE_RES_TOPIC = "last_scraped_date_responses"
+
+    LOGGING_LEVEL = logging.INFO
+    LOGGER_WIDTH_OFFSET = 90
+    SEQ_URL = f"http://{os.getenv('SEQ_SERVER')}:{os.getenv('SEQ_PORT')}"
+    SEQ_LOG_BATCH_SIZE = 1
