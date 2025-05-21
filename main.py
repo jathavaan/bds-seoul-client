@@ -15,7 +15,7 @@ def generate_random_review(producer: Producer) -> None:
         "game_id": 308,
         "date_posted": datetime.now().strftime("%Y-%m-%d"),
         "is_recommended": random.choice((True, False)),
-        "hours_played": round(random.uniform(0, 200), 2),
+        "hours_played": round(random.uniform(0, 700), 2),
         "user_id": random.randint(1, 10_000)
     }
 
