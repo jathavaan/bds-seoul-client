@@ -20,7 +20,7 @@ def generate_random_review(producer: Producer) -> None:
     }
 
     payload = json.dumps(review).encode("utf-8")
-    print(payload)
+    print(payload.decode("utf-8"))
 
     producer.produce("reviews", value=payload)
     producer.flush()
