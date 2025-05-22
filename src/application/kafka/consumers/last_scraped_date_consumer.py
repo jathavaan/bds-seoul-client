@@ -39,6 +39,7 @@ class LastScrapedDateConsumer(ConsumerBase[LastScrapedDateResponseDto | None]):
             self.__logger.error(message.error())
             return False, None
 
+        self.__logger.info("Response received from last scraped date topic")
         response = LastScrapedDateResponseDto(**json.loads(message.value().decode("utf-8")))
         return True, response
 

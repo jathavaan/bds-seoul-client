@@ -1,54 +1,36 @@
-﻿import json
-import random
-import time
-from datetime import datetime
+﻿import time
 
-from confluent_kafka import Producer
-from scrapy.crawler import CrawlerProcess
-from scrapy.utils.project import get_project_settings
+from src.application import Container
+from src.application.common import Request
+from src.application.features.query.get_recommendations import GetRecommendationsQueryHandler, GetRecommendationsQuery
 
-from src.scraper.spiders import QuoteSpider
+container = Container()
 
-
-def generate_random_review(producer: Producer) -> None:
-    review = {
-        "game_id": 308,
-        "date_posted": datetime.now().strftime("%Y-%m-%d"),
-        "is_recommended": random.choice((True, False)),
-        "hours_played": round(random.uniform(0, 700), 2),
-        "user_id": random.randint(1, 10_000)
-    }
-
-    payload = json.dumps(review).encode("utf-8")
-    print(payload.decode("utf-8"))
-
-    producer.produce("reviews", value=payload)
-    producer.flush()
+logger = container.logger()
+last_scraped_date_producer = container.last_scraped_date_producer()
+last_scraped_date_consumer = container.last_scraped_date_consumer()
+review_producer = container.review_producer()
+get_recommendations_query_handler = GetRecommendationsQueryHandler(
+    logger=logger,
+    last_scraped_date_consumer=last_scraped_date_consumer,
+    last_scraped_date_producer=last_scraped_date_producer,
+    review_producer=review_producer
+)
 
 
 def main() -> None:
-    producer = Producer({
-        "bootstrap.servers": "host.docker.internal:9092",
-    })
-
     try:
+        steam_game_id = 100_000
         while True:
+            request: Request[GetRecommendationsQuery] = Request(GetRecommendationsQuery(steam_game_id=steam_game_id))
+            get_recommendations_query_handler.handle(request)
+            steam_game_id += 1
             time.sleep(0.5)
-            generate_random_review(producer=producer)
     except Exception as e:
         print("Stopping the program...")
         raise e
     finally:
         print("Program terminated.")
-
-    # session = create_db_session()
-    #
-    # settings = get_project_settings()
-    # process = CrawlerProcess(settings)
-    # process.crawl(QuoteSpider)
-    # process.start()
-    #
-    # close_db_session(session)
 
 
 if __name__ == "__main__":

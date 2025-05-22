@@ -18,7 +18,7 @@ class ReviewProducer(ProducerBase[ReviewDto]):
         self.__producer = Producer({"bootstrap.servers": Config.KAFKA_BOOTSTRAP_SERVERS.value})
 
     def produce(self, producer_content: ReviewDto) -> None:
-        payload = json.dumps(producer_content).encode("utf-8")
+        payload = json.dumps(producer_content.to_dict()).encode("utf-8")
         self.__producer.produce(topic=Config.KAFKA_REVIEW_TOPIC.value, value=payload)
 
     def close(self) -> None:
