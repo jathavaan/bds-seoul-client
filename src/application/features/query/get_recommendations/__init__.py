@@ -1,0 +1,2 @@
+﻿from .get_recommendations_query import GetRecommendationsQuery
+from .get_recommendations_query_handler import GetRecommendationsQueryHandler
