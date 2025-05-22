@@ -8,3 +8,4 @@ class ReviewDto:
     is_recommended: bool
     hours_played: float
     user_id: int
+    is_last_review_in_batch: bool
