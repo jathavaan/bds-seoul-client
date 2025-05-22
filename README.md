@@ -70,6 +70,14 @@ In your IDE ensure that the `venv` have been selected as the Python interpreter.
 ensure that it is included in the `requirements.txt` by using `pip freeze > requirements.txt` Please ensure that the
 `venv` is activated.
 
+Add the following `.env`file in the root of the project.
+
+```dotenv
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal
+SEQ_SERVER=host.docker.internal
+SEQ_PORT=5341
+```
+
 ## Connect to RaspberryPi with ssh
 
 All RaspberryPi's are connected to the network `Einar's S24`. The IP-addresses can be accessed from the phone. When
