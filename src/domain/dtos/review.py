@@ -9,6 +9,7 @@ class ReviewDto:
     hours_played: float
     user_id: int
     is_last_review_in_batch: bool
+    correlation_id: str
 
     def to_dict(self) -> dict[str, str | int | bool]:
         return {
@@ -18,4 +19,5 @@ class ReviewDto:
             "hours_played": self.hours_played,
             "user_id": self.user_id,
             "is_last_review_in_batch": self.is_last_review_in_batch,
+            "correlation_id": self.correlation_id
         }
