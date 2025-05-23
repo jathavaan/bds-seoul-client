@@ -52,7 +52,7 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
                 is_recommended=random.choice((True, False)),
                 hours_played=round(random.uniform(0, 700), 2),
                 user_id=random.randint(1, 10_000),
-                is_last_review_in_batch=False,
+                is_last_review=False,
                 correlation_id=request.correlation_id
             )
 
