@@ -31,9 +31,12 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
         self.__review_producer = review_producer
 
     def handle(self, request: Request[GetRecommendationsQuery]) -> Response[list[RecommendationVm]]:
-        self.__last_scraped_date_producer.produce(LastScrapedDateRequestDto(game_id=request.payload.steam_game_id))
-        response: LastScrapedDateResponseDto | None
+        self.__last_scraped_date_producer.produce(LastScrapedDateRequestDto(
+            game_id=request.payload.steam_game_id,
+            correlation_id=request.correlation_id
+        ))
 
+        response: LastScrapedDateResponseDto | None
         while True:
             has_responded, response = self.__last_scraped_date_consumer.consume()
             if has_responded:
@@ -49,11 +52,11 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
                 is_recommended=random.choice((True, False)),
                 hours_played=round(random.uniform(0, 700), 2),
                 user_id=random.randint(1, 10_000),
-                is_last_review_in_batch=False
+                is_last_review_in_batch=False,
+                correlation_id=request.correlation_id
             )
 
             self.__review_producer.produce(review)
 
         self.__logger.debug("Messages sent from Review producer")
-
         return Response([])

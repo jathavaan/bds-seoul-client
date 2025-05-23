@@ -15,3 +15,4 @@ class LastScrapedDateRequestDto:
 class LastScrapedDateResponseDto:
     steam_game_id: int
     last_scraped_date: datetime | None
+    correlation_id: str
