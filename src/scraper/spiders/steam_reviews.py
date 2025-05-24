@@ -31,19 +31,19 @@ url = f'https://steamcommunity.com/app/{game_id}/reviews/?p=1&browsefilter=mostr
 driver.get(url)
 
 CUTOFF_DATE = datetime.strptime(f'2022.04.19', "%Y.%m.%d")  # Change to desired date
-TARGET_REVIEW_COUNT = 1000                                  # Change to desired amount of reviews
+TARGET_REVIEW_COUNT = 100                                  # Change to desired amount of reviews
 
 start_time = time.time()
 
 #Handle data
-def parse_review(i: int, container: webdriver):
+def parse_review(user_id: int, container: webdriver ):
         try:
-
             #content = container.find_element(By.CLASS_NAME, "apphub_CardTextContent").text.strip()
             date = container.find_element(By.CLASS_NAME, "date_posted").text
             hours = container.find_element(By.CLASS_NAME, "hours").text.strip()
             #helpful = container.find_element(By.CLASS_NAME, "found_helpful").text.strip()
             recommended = container.find_element(By.CLASS_NAME, "title").text
+            is_last_review = False
 
             #Content handling
             #content = content.replace(date, "").strip() #Remove the Date from the review
@@ -73,6 +73,15 @@ def parse_review(i: int, container: webdriver):
             # except:
             #     helpful = 0
 
+            #is last review check
+            if datetime.strptime(date, "%Y.%m.%d") < CUTOFF_DATE:
+                is_last_review = True
+                print(f'{CUTOFF_DATE} reached. Ending scroll.')
+
+            if user_id >= TARGET_REVIEW_COUNT:
+                is_last_review = True
+                print(f'{TARGET_REVIEW_COUNT} reviews loaded. Ending scroll.')
+
             return {
                 "game_id": game_id,
                 "date_posted": date,
@@ -80,48 +89,47 @@ def parse_review(i: int, container: webdriver):
                 "hours_played": hours,
                 #"helpful": helpful,   
                 #"content": content,
-                "user_id": i
+                "user_id": user_id,
+                "is_last_review": is_last_review 
             }
 
         except Exception as e:
-            print(f'❌ Skipped review {i} due to missing info.')
+            print(f'❌ Skipped review from {user_id} due to missing info.')
             print(e)
             return None
 
 try:
-    OLD_REVIEW_COUNT = 0
+    old_review_count = 0
+    nbreak = False
     while True: 
         try:
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             WebDriverWait(driver, 2).until(
-                lambda d: len(d.find_elements(By.CLASS_NAME, "apphub_CardContentMain")) > OLD_REVIEW_COUNT
+                lambda d: len(d.find_elements(By.CLASS_NAME, "apphub_CardContentMain")) > old_review_count
             )
         except:
             print("No new reviews loaded. Ending scroll.")
             break
 
         reviews = driver.find_elements(By.CLASS_NAME, "apphub_CardContentMain") 
-        CURRENT_REVIEW_COUNT = len(reviews)
-        
+        current_review_count = len(reviews)
+
+
         #Parse and send current loaded reviews
-        print(f'Sending reviews {OLD_REVIEW_COUNT} to {CURRENT_REVIEW_COUNT} to kafka')
+        print(f'Sending reviews {old_review_count} to {current_review_count} to kafka')
         with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(parse_review, OLD_REVIEW_COUNT + i, container) for i, container in enumerate(reviews[OLD_REVIEW_COUNT:CURRENT_REVIEW_COUNT], start=1)]
+            futures = [executor.submit(parse_review, old_review_count + i, container) for i, container in enumerate(reviews[old_review_count:current_review_count], start=1)]
             for future in as_completed(futures):
                 result = future.result()
                 if result:
-                    CURRENT_DATE = datetime.strptime(result["date_posted"], "%Y.%m.%d")
-                    #Send to Kafka
-                    print(result)
-
-        if CURRENT_REVIEW_COUNT >= TARGET_REVIEW_COUNT:
-            print(f'{TARGET_REVIEW_COUNT} reviews loaded. Ending scroll.')
-            break  
-        if CURRENT_DATE < CUTOFF_DATE:
-            print(f'{CUTOFF_DATE} reached. Ending scroll.')
+                    if result["is_last_review"]:
+                        print(result) #Send to Kafka
+                        nbreak = True
+                        break
+        if nbreak:
             break
 
-        OLD_REVIEW_COUNT = CURRENT_REVIEW_COUNT
+        old_review_count = current_review_count
  
 except Exception as e:
     print("❌ Failed to collect review containers.")
