@@ -1,5 +1,5 @@
-﻿from ..spiders import QuoteSpider
-from ...application.items import QuoteItem
+﻿from src.scraper.spiders import QuoteSpider
+from src.application.items import QuoteItem
 
 
 class QuotePipeline:

@@ -9,9 +9,9 @@ RaspberryPi, and is a part of the term project in the course `DE7600042 Big data
 > [!TIP]
 > Read the docs
 
-- [Coding convention](./docs/coding-convention.md)
-- [Architecture](./docs/architecture.md)
-- [SQLAlchemy and Alembic](./docs/database.md)
+- [Coding convention](.github/coding-convention.md)
+- [Architecture](.github/architecture.md)
+- [SQLAlchemy and Alembic](.github/database.md)
 
 ## Project requirements
 
@@ -69,6 +69,14 @@ You should run this command whenever you know a new package have been installed,
 In your IDE ensure that the `venv` have been selected as the Python interpreter. If you have installed a new package,
 ensure that it is included in the `requirements.txt` by using `pip freeze > requirements.txt` Please ensure that the
 `venv` is activated.
+
+Add the following `.env`file in the root of the project.
+
+```dotenv
+KAFKA_BOOTSTRAP_SERVERS=host.docker.internal
+SEQ_SERVER=host.docker.internal
+SEQ_PORT=5341
+```
 
 ## Connect to RaspberryPi with ssh
 
