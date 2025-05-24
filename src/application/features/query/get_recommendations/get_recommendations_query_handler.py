@@ -2,6 +2,7 @@
 import random
 from abc import ABC
 from datetime import datetime
+from statistics import correlation
 
 from src.application.base import RequestHandlerBase
 from src.application.common import Request, Response
@@ -39,7 +40,7 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
         response: LastScrapedDateResponseDto | None
         while True:
             has_responded, response = self.__last_scraped_date_consumer.consume()
-            if has_responded:
+            if has_responded and response.correlation_id == request.correlation_id:
                 break
 
         last_scraped_date = response.last_scraped_date
