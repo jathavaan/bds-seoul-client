@@ -11,6 +11,7 @@ class Config(Enum):
     KAFKA_BOOTSTRAP_SERVERS = f"{os.getenv('KAFKA_BOOTSTRAP_SERVERS')}:9092"
     KAFKA_GROUP_ID = "seoul"
     KAFKA_REVIEW_TOPIC = "reviews"
+    KAFKA_FINAL_RESULT_TOPIC = "final_results"
     KAFKA_LAST_SCRAPED_DATE_REQ_TOPIC = "last_scraped_date_requests"
     KAFKA_LAST_SCRAPED_DATE_RES_TOPIC = "last_scraped_date_responses"
     KAFKA_POLL_TIMEOUT = 1.0

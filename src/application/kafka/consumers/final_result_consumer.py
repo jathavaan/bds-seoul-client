@@ -5,21 +5,20 @@ from confluent_kafka.cimpl import Consumer
 
 from src import Config
 from src.application.base import ConsumerBase
-from src.domain.dtos import LastScrapedDateResponseDto
+from src.domain.dtos import FinalResultDto
 
 
-class LastScrapedDateConsumer(ConsumerBase[LastScrapedDateResponseDto | None]):
+class FinalResultConsumer(ConsumerBase[FinalResultDto | None]):
     __logger: logging.Logger
     __consumer: Consumer
 
     def __init__(self, logger: logging.Logger):
         self.__logger = logger
 
-        topics = [Config.KAFKA_LAST_SCRAPED_DATE_RES_TOPIC.value]
+        topics = [Config.KAFKA_FINAL_RESULT_TOPIC.value]
         self.__consumer = Consumer({
             "bootstrap.servers": Config.KAFKA_BOOTSTRAP_SERVERS.value,
             "group.id": Config.KAFKA_GROUP_ID.value,
-            "auto.offset.reset": "earliest",
             "enable.auto.commit": True
         })
 
@@ -29,7 +28,7 @@ class LastScrapedDateConsumer(ConsumerBase[LastScrapedDateResponseDto | None]):
             f"with group ID {Config.KAFKA_GROUP_ID.value}, subscribed to topic(s): {', '.join(topics)}"
         )
 
-    def consume(self) -> tuple[bool, LastScrapedDateResponseDto | None]:
+    def consume(self) -> tuple[bool, FinalResultDto | None]:
         message = self.__consumer.poll(Config.KAFKA_POLL_TIMEOUT.value)
 
         if not message:
@@ -39,10 +38,9 @@ class LastScrapedDateConsumer(ConsumerBase[LastScrapedDateResponseDto | None]):
             self.__logger.error(message.error())
             return False, None
 
-        self.__logger.info("Response received from last scraped date topic")
-        response = LastScrapedDateResponseDto(**json.loads(message.values().decode("utf-8")))
-        return True, response
+        final_result = FinalResultDto(**json.loads(message.values().decode("utf-8")))
+        return True, final_result
 
     def close(self) -> None:
-        self.__logger.info("Closing last scraped date response consumer")
         self.__consumer.close()
+        self.__logger.info("Shutting down final result consumer")
