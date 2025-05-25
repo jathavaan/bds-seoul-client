@@ -44,16 +44,19 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
                 break
 
         last_scraped_date = response.last_scraped_date
-
         self.__logger.debug("Sending messages from Review producer")
-        for _ in range(1, 201):
+
+        NUMBER_OF_DUMMY_MESSAGES = 45
+
+        for i in range(1, NUMBER_OF_DUMMY_MESSAGES + 1):
+            is_last_review = i == NUMBER_OF_DUMMY_MESSAGES
             review = ReviewDto(
                 game_id=request.payload.steam_game_id,
                 date_posted=datetime.now().strftime("%Y-%m-%d"),
                 is_recommended=random.choice((True, False)),
                 hours_played=round(random.uniform(0, 700), 2),
                 user_id=random.randint(1, 10_000),
-                is_last_review=False,
+                is_last_review=is_last_review,
                 correlation_id=request.correlation_id
             )
 
