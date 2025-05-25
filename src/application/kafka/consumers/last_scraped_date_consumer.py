@@ -40,7 +40,7 @@ class LastScrapedDateConsumer(ConsumerBase[LastScrapedDateResponseDto | None]):
             return False, None
 
         self.__logger.info("Response received from last scraped date topic")
-        response = LastScrapedDateResponseDto(**json.loads(message.values().decode("utf-8")))
+        response = LastScrapedDateResponseDto(**json.loads(message.value().decode("utf-8")))
         return True, response
 
     def close(self) -> None:

@@ -19,6 +19,7 @@ class FinalResultConsumer(ConsumerBase[FinalResultDto | None]):
         self.__consumer = Consumer({
             "bootstrap.servers": Config.KAFKA_BOOTSTRAP_SERVERS.value,
             "group.id": Config.KAFKA_GROUP_ID.value,
+            "auto.offset.reset": "earliest",
             "enable.auto.commit": True
         })
 
@@ -28,18 +29,17 @@ class FinalResultConsumer(ConsumerBase[FinalResultDto | None]):
             f"with group ID {Config.KAFKA_GROUP_ID.value}, subscribed to topic(s): {', '.join(topics)}"
         )
 
-    def consume(self) -> tuple[bool, FinalResultDto | None]:
+    def consume(self) -> FinalResultDto | None:
         message = self.__consumer.poll(Config.KAFKA_POLL_TIMEOUT.value)
 
         if not message:
-            return False, None
+            return None
 
         if message.error():
             self.__logger.error(message.error())
-            return False, None
+            return None
 
-        final_result = FinalResultDto(**json.loads(message.values().decode("utf-8")))
-        return True, final_result
+        return FinalResultDto(**json.loads(message.value().decode("utf-8")))
 
     def close(self) -> None:
         self.__consumer.close()
