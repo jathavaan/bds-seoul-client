@@ -10,11 +10,14 @@ logger = container.logger()
 last_scraped_date_producer = container.last_scraped_date_producer()
 last_scraped_date_consumer = container.last_scraped_date_consumer()
 review_producer = container.review_producer()
+final_result_consumer = container.final_result_consumer()
+
 get_recommendations_query_handler = GetRecommendationsQueryHandler(
     logger=logger,
     last_scraped_date_consumer=last_scraped_date_consumer,
     last_scraped_date_producer=last_scraped_date_producer,
-    review_producer=review_producer
+    review_producer=review_producer,
+    final_result_consumer=final_result_consumer
 )
 
 
@@ -23,9 +26,10 @@ def main() -> None:
         steam_game_id = 100_000
         while True:
             request: Request[GetRecommendationsQuery] = Request(GetRecommendationsQuery(steam_game_id=steam_game_id))
-            get_recommendations_query_handler.handle(request)
+            response = get_recommendations_query_handler.handle(request)
+
             steam_game_id += 1
-            time.sleep(0.5)
+            time.sleep(80)
     except Exception as e:
         print("Stopping the program...")
         raise e
