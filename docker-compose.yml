@@ -1,11 +1,11 @@
 services:
   server:
     build:
-      context: .
+      context: ./server
       dockerfile: server.dockerfile
     env_file:
-      - .env
+      - ./server/.env
     volumes:
-      - .:/app
-    working_dir: /app
+      - ./server/:/app/
+    working_dir: /app/
 
