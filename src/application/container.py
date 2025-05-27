@@ -6,7 +6,7 @@ from selenium.webdriver.edge.service import Service
 
 from src import Config
 from src.application.common import Logger
-from src.application.kafka.consumers import LastScrapedDateConsumer
+from src.application.kafka.consumers import LastScrapedDateConsumer, FinalResultConsumer
 from src.application.kafka.producers import LastScrapedDateProducer, ReviewProducer
 from src.application.services.scraper_service import ScraperService
 
@@ -38,4 +38,6 @@ class Container(containers.DeclarativeContainer):
     last_scraped_date_consumer = providers.Singleton(
         LastScrapedDateConsumer, logger=logger)
     review_producer = providers.Singleton(ReviewProducer, logger=logger)
+    final_result_consumer = providers.Singleton(
+        FinalResultConsumer, logger=logger)
     scraper_service = providers.Singleton(ScraperService, driver=driver)
