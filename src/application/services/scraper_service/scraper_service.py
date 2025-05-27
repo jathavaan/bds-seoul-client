@@ -1,3 +1,4 @@
+import logging
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,7 +11,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 from datetime import datetime
 
+from src.application.kafka.producers.review_producer import ReviewProducer
 from src.config import Config
+from src.domain.dtos.review import ReviewDto
 
 
 class ScraperService:
@@ -18,9 +21,13 @@ class ScraperService:
     __driver: webdriver.Edge
     __url: str | None = None
     __game_id: int
+    __logger: logging.Logger
+    __review_producer: ReviewProducer
 
-    def __init__(self, driver: webdriver.Edge):
+    def __init__(self, logger: logging.Logger, driver: webdriver.Edge, review_producer: ReviewProducer):
         self.__driver = driver
+        self.__logger = logger
+        self.__review_producer = review_producer
 
     def set_game_id(self, game_id: int):
         self.__game_id = game_id
@@ -40,27 +47,26 @@ class ScraperService:
 
     def is_last_review_check(self, review_number: int, date_obj: datetime) -> bool:
         if date_obj < Config.CUTOFF_DATE.value:
-            print(f'{Config.CUTOFF_DATE.value} reached. Ending scroll.')
+            self.__logger.info(
+                f'{Config.CUTOFF_DATE.value} reached. Ending scroll.')
             return True
         if review_number >= Config.TARGET_REVIEW_COUNT.value:
-            print(
+            self.__logger.info(
                 f'{Config.TARGET_REVIEW_COUNT.value} reviews loaded. Ending scroll.')
             return True
         return False
 
-    def parse_review(self, review_number: int, container: webdriver) -> dict | None:
+    def parse_review(self, review_number: int, container: webdriver, correlation_id: str) -> ReviewDto | None:
         try:
             date = container.find_element(By.CLASS_NAME, "date_posted").text
             hours = container.find_element(By.CLASS_NAME, "hours").text.strip()
             is_recommended_string = container.find_element(
-                By.CLASS_NAME,
-                "title"
+                By.CLASS_NAME, "title"
             ).text
 
-        except Exception as e:
-            print(
-                f'❌ Skipped review from {review_number} due to missing info.')
-            print(e)
+        except Exception:
+            self.__logger.exception(
+                f'Skipped review from {review_number} due to missing info.')
             return None
 
         # Date handling
@@ -76,16 +82,15 @@ class ScraperService:
         # is last review check
         is_last_review = self.is_last_review_check(review_number, date_obj)
 
-        return {
-            "game_id": self.__game_id,
-            "date_posted": date,
-            "is_recommended": is_recommended,
-            "hours_played": hours,
-            # "helpful": helpful,
-            # "content": content,
-            "user_id": review_number,
-            "is_last_review": is_last_review
-        }
+        return ReviewDto(
+            game_id=self.__game_id,
+            date_posted=date_string,
+            is_recommended=is_recommended,
+            hours_played=hours,
+            user_id=review_number,
+            is_last_review=is_last_review,
+            correlation_id=correlation_id
+        )
 
     def scroll_down(self, old_review_count: int) -> bool:
         try:
@@ -97,24 +102,25 @@ class ScraperService:
             )
             return True
         except:
-            print("No new reviews loaded. Ending scroll.")
+            self.__logger.info("No new reviews loaded. Ending scroll.")
             return False
 
-    def extract_and_send(self, old_review_count: int, current_review_count: int, reviews: list[WebElement]) -> bool:
-        print(
+    def extract_and_send(self, old_review_count: int, current_review_count: int, reviews: list[WebElement], correlation_id: str) -> bool:
+        self.__logger.debug(
             f'Sending reviews {old_review_count} to {current_review_count} to kafka')
         with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(self.parse_review, old_review_count + i, container)
+            futures = [executor.submit(self.parse_review, old_review_count + i, container, correlation_id)
                        for i, container in enumerate(reviews[old_review_count:current_review_count], start=1)]
             for future in as_completed(futures):
                 result = future.result()
                 if result:
-                    print(result)  # Send to Kafka
-                    if result["is_last_review"]:
+                    self.__review_producer.produce(result)
+                    if result.is_last_review:
                         return True
         return False
 
-    def scrape(self, game_id: int):
+    def scrape(self, game_id: int, correlation_id: str):
+        self.__logger.info("Scraping Steam game ID {game_id}")
         start_time = time.time()
         self.set_game_id(game_id)
         if self.__driver is None:
@@ -131,20 +137,21 @@ class ScraperService:
                 reviews = self.__driver.find_elements(
                     By.CLASS_NAME, "apphub_CardContentMain")
             except Exception as e:
-                print("❌ Failed to collect review containers.")
-                print(e)
+                self.__logger.error("Failed to collect review containers.")
 
             current_review_count = len(reviews)
 
             is_done_extracting = self.extract_and_send(
-                old_review_count, current_review_count, reviews)
+                old_review_count, current_review_count, reviews, correlation_id)
             if is_done_extracting:
                 break
 
             old_review_count = current_review_count
 
         end_time = time.time()
-        print(f"⏱️ Script finished in {end_time - start_time:.2f} seconds")
+        self.__logger.info(
+            f"Scraping finished for {game_id} in {end_time - start_time:.2f} seconds.")
 
     def quit_driver(self):
+        self.__logger.info("Shut donw Selenium driver")
         self.__driver.quit()

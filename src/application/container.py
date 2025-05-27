@@ -40,4 +40,5 @@ class Container(containers.DeclarativeContainer):
     review_producer = providers.Singleton(ReviewProducer, logger=logger)
     final_result_consumer = providers.Singleton(
         FinalResultConsumer, logger=logger)
-    scraper_service = providers.Singleton(ScraperService, driver=driver)
+    scraper_service = providers.Singleton(
+        ScraperService, logger=logger, driver=driver, review_producer=review_producer)
