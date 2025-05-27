@@ -120,7 +120,7 @@ class ScraperService:
         return False
 
     def scrape(self, game_id: int, correlation_id: str):
-        self.__logger.info("Scraping Steam game ID {game_id}")
+        self.__logger.info(f"Scraping Steam game ID {game_id}")
         start_time = time.time()
         self.set_game_id(game_id)
         if self.__driver is None:
