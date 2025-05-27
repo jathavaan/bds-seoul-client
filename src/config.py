@@ -1,4 +1,5 @@
-﻿import logging
+﻿from datetime import datetime
+import logging
 import os
 from enum import Enum
 
@@ -19,3 +20,9 @@ class Config(Enum):
     LOGGER_WIDTH_OFFSET = 90
     SEQ_URL = f"http://{os.getenv('SEQ_SERVER')}:{os.getenv('SEQ_PORT')}"
     SEQ_LOG_BATCH_SIZE = 1
+
+    CUTOFF_DATE = datetime.strptime(
+        f'2024.05.26', "%Y.%m.%d")
+    TARGET_REVIEW_COUNT = 300
+
+    EDGE_PATH = "/usr/bin/microsoft-edge"

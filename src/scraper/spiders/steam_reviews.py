@@ -30,8 +30,8 @@ game_id = 730      #CS
 url = f'https://steamcommunity.com/app/{game_id}/reviews/?p=1&browsefilter=mostrecent'
 driver.get(url)
 
-CUTOFF_DATE = datetime.strptime(f'2022.04.19', "%Y.%m.%d")  # Change to desired date
-TARGET_REVIEW_COUNT = 100                                  # Change to desired amount of reviews
+CUTOFF_DATE = datetime.strptime(f'2025.05.26', "%Y.%m.%d")  # Change to desired date
+TARGET_REVIEW_COUNT = 1000                                  # Change to desired amount of reviews
 
 start_time = time.time()
 

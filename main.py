@@ -16,13 +16,26 @@ get_recommendations_query_handler = GetRecommendationsQueryHandler(
     last_scraped_date_producer=last_scraped_date_producer,
     review_producer=review_producer
 )
+scraper_service = container.scraper_service()
 
 
 def main() -> None:
+    # Choose Steam game review page
+    # game_id = 730      #CS
+    # game_id = 413150   #Stardew Valley
+    # game_id = 2007520  #Rainbow High Runway Rush
+
+    scraper_service.scrape(730)
+    scraper_service.quit_driver()
+    return
+    scraper_service.scrape(413150)
+    scraper_service.quit_driver()
+    return
     try:
         steam_game_id = 100_000
         while True:
-            request: Request[GetRecommendationsQuery] = Request(GetRecommendationsQuery(steam_game_id=steam_game_id))
+            request: Request[GetRecommendationsQuery] = Request(
+                GetRecommendationsQuery(steam_game_id=steam_game_id))
             get_recommendations_query_handler.handle(request)
             steam_game_id += 1
             time.sleep(0.5)
