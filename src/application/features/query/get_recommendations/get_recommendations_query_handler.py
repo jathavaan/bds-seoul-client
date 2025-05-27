@@ -8,6 +8,7 @@ from src.application.base import RequestHandlerBase
 from src.application.common import Request, Response
 from src.application.kafka.consumers import LastScrapedDateConsumer, FinalResultConsumer
 from src.application.kafka.producers import LastScrapedDateProducer, ReviewProducer
+from src.application.services.scraper_service.scraper_service import ScraperService
 from src.application.view_models import RecommendationVm
 from src.domain.dtos import LastScrapedDateRequestDto, LastScrapedDateResponseDto, ReviewDto, FinalResultDto
 from .get_recommendations_query import GetRecommendationsQuery
@@ -17,22 +18,22 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
     __logger: logging.Logger
     __last_scraped_date_consumer: LastScrapedDateConsumer
     __last_scraped_date_producer: LastScrapedDateProducer
-    __review_producer: ReviewProducer
     __final_result_consumer: FinalResultConsumer
+    __scraper_service: ScraperService
 
     def __init__(
             self,
             logger: logging.Logger,
             last_scraped_date_consumer: LastScrapedDateConsumer,
             last_scraped_date_producer: LastScrapedDateProducer,
-            review_producer: ReviewProducer,
-            final_result_consumer: FinalResultConsumer
+            final_result_consumer: FinalResultConsumer,
+            scraper_service: ScraperService
     ):
         self.__logger = logger
         self.__last_scraped_date_consumer = last_scraped_date_consumer
         self.__last_scraped_date_producer = last_scraped_date_producer
-        self.__review_producer = review_producer
         self.__final_result_consumer = final_result_consumer
+        self.__scraper_service = scraper_service
 
     def handle(self, request: Request[GetRecommendationsQuery]) -> Response[list[RecommendationVm]]:
         start_time = time.time()
@@ -50,21 +51,8 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
 
         last_scraped_date = response.last_scraped_date
 
-        NUMBER_OF_DUMMY_MESSAGES = 45
-
-        for i in range(1, NUMBER_OF_DUMMY_MESSAGES + 1):
-            is_last_review = i == NUMBER_OF_DUMMY_MESSAGES
-            review = ReviewDto(
-                game_id=request.payload.steam_game_id,
-                date_posted=datetime.now().strftime("%Y-%m-%d"),
-                is_recommended=random.choice((True, False)),
-                hours_played=round(random.uniform(0, 700), 2),
-                user_id=random.randint(1, 10_000),
-                is_last_review=is_last_review,
-                correlation_id=request.correlation_id
-            )
-
-            self.__review_producer.produce(review)
+        self.__scraper_service.scrape(
+            request.payload.steam_game_id, request.correlation_id)
 
         final_result: FinalResultDto | None = None
         while True:
@@ -77,7 +65,8 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
 
         end_time = time.time()
         elapsed_time = end_time - start_time
-        self.__logger.info(f"Request {request.correlation_id} responded in {round(elapsed_time, 2)} second(s)")
+        self.__logger.info(
+            f"Request {request.correlation_id} responded in {round(elapsed_time, 2)} second(s)")
 
         return Response([
             RecommendationVm(**recommendation.to_dict()) for recommendation in final_result.recommendations
