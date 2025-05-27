@@ -26,7 +26,7 @@ class ScraperService:
         self.__game_id = game_id
         self.__url = f'https://steamcommunity.com/app/{self.__game_id}/reviews/?p=1&browsefilter=mostrecent'
 
-    def parse_posted_date(date: str) -> tuple[str, datetime]:
+    def parse_posted_date(self, date: str) -> tuple[str, datetime]:
         date = date.replace("Posted: ", "").strip()
         if "," not in date:
             date = f"{date}, {datetime.now().year}"
@@ -38,7 +38,7 @@ class ScraperService:
         date = date_obj.strftime("%Y.%m.%d")
         return date, date_obj
 
-    def is_last_review_check(review_number: int, date_obj: datetime) -> bool:
+    def is_last_review_check(self, review_number: int, date_obj: datetime) -> bool:
         if date_obj < Config.CUTOFF_DATE.value:
             print(f'{Config.CUTOFF_DATE.value} reached. Ending scroll.')
             return True

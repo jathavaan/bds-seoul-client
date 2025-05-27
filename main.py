@@ -26,8 +26,6 @@ def main() -> None:
     # game_id = 2007520  #Rainbow High Runway Rush
 
     scraper_service.scrape(730)
-    scraper_service.quit_driver()
-    return
     scraper_service.scrape(413150)
     scraper_service.quit_driver()
     return

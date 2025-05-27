@@ -1,7 +1,7 @@
 ﻿from dependency_injector import containers, providers
 from selenium import webdriver
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
-from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.edge.options import Options
 from selenium.webdriver.edge.service import Service
 
 from src import Config
@@ -11,20 +11,17 @@ from src.application.kafka.producers import LastScrapedDateProducer, ReviewProdu
 from src.application.services.scraper_service import ScraperService
 
 
-def driver_setup():
-    options = EdgeOptions()
+def driver_setup() -> webdriver.Edge:
+    options = Options()
     options.binary_location = Config.EDGE_PATH.value
-    # If you want to see whats happening
-    # options.add_argument("start-maximized")
-    options.add_argument("--headless")  # It just happends in the background
-    prefs = {
-        "profile.managed_default_content_settings.images": 2,
-        "profile.managed_default_content_settings.fonts": 2,
-        "profile.managed_default_content_settings.stylesheets": 2,
-    }
-    options.add_experimental_option("prefs", prefs)
-    driver = webdriver.Edge(service=Service(
-        EdgeChromiumDriverManager().install()), options=options)
+    options.add_argument("--headless")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    options.add_argument("--disable-dev-shm-usage")
+
+    service = Service(Config.EDGE_DRIVER_PATH.value)
+
+    driver = webdriver.Edge(service=service, options=options)
     return driver
 
 

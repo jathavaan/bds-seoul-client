@@ -23,6 +23,7 @@ class Config(Enum):
 
     CUTOFF_DATE = datetime.strptime(
         f'2024.05.26', "%Y.%m.%d")
-    TARGET_REVIEW_COUNT = 300
+    TARGET_REVIEW_COUNT = 500
 
     EDGE_PATH = "/usr/bin/microsoft-edge"
+    EDGE_DRIVER_PATH = "/usr/bin/msedgedriver"
