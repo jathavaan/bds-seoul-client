@@ -42,7 +42,7 @@ class ScraperService:
             date_obj = datetime.strptime(date, "%d %B, %Y")
         else:                                   # Format: "May 5, 2023"
             date_obj = datetime.strptime(date, "%B %d, %Y")
-        date = date_obj.strftime("%Y.%m.%d")
+        date = date_obj.strftime("%Y-%m-%d")
         return date, date_obj
 
     def is_last_review_check(self, review_number: int, date_obj: datetime) -> bool:
