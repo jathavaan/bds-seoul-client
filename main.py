@@ -24,9 +24,10 @@ get_recommendations_query_handler = GetRecommendationsQueryHandler(
 
 def main() -> None:
     # Choose Steam game review page
-    steam_game_id = 730  # CS
-    # game_id = 413150   #Stardew Valley
-    # game_id = 2007520  #Rainbow High Runway Rush
+    # steam_game_id = 730       # CS
+    # steam_game_id = 413150    # Stardew Valley
+    # steam_game_id = 2007520     # Rainbow High Runway Rush
+    steam_game_id = 2669320   # EA FC
 
     try:
         request: Request[GetRecommendationsQuery] = Request(

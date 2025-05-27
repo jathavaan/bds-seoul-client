@@ -1,15 +1,12 @@
 import logging
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.remote.webelement import WebElement
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
-from selenium.webdriver.edge.options import Options as EdgeOptions
-from selenium.webdriver.edge.service import Service
-from concurrent.futures import ThreadPoolExecutor, as_completed
-import time
-from datetime import datetime
+from selenium.webdriver.support.ui import WebDriverWait
 
 from src.application.kafka.producers.review_producer import ReviewProducer
 from src.config import Config
@@ -17,7 +14,6 @@ from src.domain.dtos.review import ReviewDto
 
 
 class ScraperService:
-    # Setup Edge
     __driver: webdriver.Edge
     __url: str | None = None
     __game_id: int
@@ -38,9 +34,9 @@ class ScraperService:
         if "," not in date:
             date = f"{date}, {datetime.now().year}"
 
-        if date[0].isdigit():                   # Format: "31 October, 2024"
+        if date[0].isdigit():
             date_obj = datetime.strptime(date, "%d %B, %Y")
-        else:                                   # Format: "May 5, 2023"
+        else:
             date_obj = datetime.strptime(date, "%B %d, %Y")
         date = date_obj.strftime("%Y-%m-%d")
         return date, date_obj
@@ -48,11 +44,13 @@ class ScraperService:
     def is_last_review_check(self, review_number: int, date_obj: datetime) -> bool:
         if date_obj < Config.CUTOFF_DATE.value:
             self.__logger.info(
-                f'{Config.CUTOFF_DATE.value} reached. Ending scroll.')
+                f'{Config.CUTOFF_DATE.value} reached. Ending scroll.'
+            )
             return True
         if review_number >= Config.TARGET_REVIEW_COUNT.value:
             self.__logger.info(
-                f'{Config.TARGET_REVIEW_COUNT.value} reviews loaded. Ending scroll.')
+                f'{Config.TARGET_REVIEW_COUNT.value} reviews loaded. Ending scroll.'
+            )
             return True
         return False
 
@@ -66,22 +64,17 @@ class ScraperService:
 
         except Exception:
             self.__logger.exception(
-                f'Skipped review from {review_number} due to missing info.')
+                f'Skipped review from {review_number} due to missing info.'
+            )
             return None
 
-        # Date handling
         date_string, date_obj = self.parse_posted_date(date)
-
-        # Recommended handling
         is_recommended = is_recommended_string == "Recommended"
-
-        # Hours
         hours = float(hours.split()[0].replace(
-            ",", "")) if hours else 0.0  # Turn into a number
+            ",", "")
+        ) if hours else 0.0
 
-        # is last review check
         is_last_review = self.is_last_review_check(review_number, date_obj)
-
         return ReviewDto(
             game_id=self.__game_id,
             date_posted=date_string,
@@ -94,29 +87,39 @@ class ScraperService:
 
     def scroll_down(self, old_review_count: int) -> bool:
         try:
-            self.__driver.execute_script(
-                "window.scrollTo(0, document.body.scrollHeight);")
+            self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             WebDriverWait(self.__driver, 2).until(
-                lambda d: len(d.find_elements(
-                    By.CLASS_NAME, "apphub_CardContentMain")) > old_review_count
+                lambda d: len(d.find_elements(By.CLASS_NAME, "apphub_CardContentMain")) > old_review_count
             )
             return True
-        except:
+        except Exception:
             self.__logger.info("No new reviews loaded. Ending scroll.")
             return False
 
-    def extract_and_send(self, old_review_count: int, current_review_count: int, reviews: list[WebElement], correlation_id: str) -> bool:
+    def extract_and_send(
+            self,
+            old_review_count: int,
+            current_review_count: int,
+            reviews: list[WebElement],
+            correlation_id: str
+    ) -> bool:
         self.__logger.debug(
-            f'Sending reviews {old_review_count} to {current_review_count} to kafka')
+            f'Sending reviews {old_review_count} to {current_review_count} to Kafka'
+        )
+
         with ThreadPoolExecutor() as executor:
-            futures = [executor.submit(self.parse_review, old_review_count + i, container, correlation_id)
-                       for i, container in enumerate(reviews[old_review_count:current_review_count], start=1)]
+            futures = [
+                executor.submit(self.parse_review, old_review_count + i, container, correlation_id) for i, container
+                in enumerate(reviews[old_review_count:current_review_count], start=1)
+            ]
+
             for future in as_completed(futures):
                 result = future.result()
                 if result:
                     self.__review_producer.produce(result)
                     if result.is_last_review:
                         return True
+
         return False
 
     def scrape(self, game_id: int, correlation_id: str):
@@ -124,7 +127,7 @@ class ScraperService:
         start_time = time.time()
         self.set_game_id(game_id)
         if self.__driver is None:
-            raise ValueError("url is None")
+            raise ValueError("URL is None")
 
         self.__driver.get(self.__url)
         old_review_count = 0
@@ -153,5 +156,5 @@ class ScraperService:
             f"Scraping finished for {game_id} in {end_time - start_time:.2f} seconds.")
 
     def quit_driver(self):
-        self.__logger.info("Shut donw Selenium driver")
+        self.__logger.info("Shut down Selenium driver")
         self.__driver.quit()
