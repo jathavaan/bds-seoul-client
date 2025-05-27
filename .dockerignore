@@ -1,3 +1,10 @@
-﻿/venv
-/.idea
-/.github
+﻿client/node_modules
+client/dist
+
+server/venv
+server/.idea
+server/_pycache__
+
+**/__pycache__/
+**/*.pyc
+.DS_Store

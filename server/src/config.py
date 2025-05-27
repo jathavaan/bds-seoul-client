@@ -17,14 +17,13 @@ class Config(Enum):
     KAFKA_LAST_SCRAPED_DATE_RES_TOPIC = "last_scraped_date_responses"
     KAFKA_POLL_TIMEOUT = 1.0
 
-    LOGGING_LEVEL = logging.INFO
+    LOGGING_LEVEL = logging.DEBUG
     LOGGER_WIDTH_OFFSET = 90
     SEQ_URL = f"http://{os.getenv('SEQ_SERVER')}:{os.getenv('SEQ_PORT')}"
     SEQ_LOG_BATCH_SIZE = 1
 
-    CUTOFF_DATE = datetime.strptime(
-        f'2024-05-26', "%Y-%m-%d")
-    TARGET_REVIEW_COUNT = 500
+    CUTOFF_DATE = datetime.strptime(f'2018-05-26', "%Y-%m-%d")
+    TARGET_REVIEW_COUNT = 5000
 
     EDGE_PATH = "/usr/bin/microsoft-edge"
     EDGE_DRIVER_PATH = "/usr/bin/msedgedriver"
