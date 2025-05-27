@@ -2,7 +2,7 @@
 client/dist
 
 server/venv
-sever/.idea
+server/.idea
 server/_pycache__
 
 **/__pycache__/
