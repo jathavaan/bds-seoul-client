@@ -1,10 +1,11 @@
 import { Stack } from "@mui/material";
-import { SideBar } from "./components";
+import { HorizontalBarchart, SideBar } from "./components";
 
 function App() {
   return (
-    <Stack direction="row" sx={{ minHeight: "100vh" }}>
+    <Stack direction="row" sx={{ minHeight: "100vh", width: "100vw" }}>
       <SideBar />
+      <HorizontalBarchart />
     </Stack>
   );
 }
