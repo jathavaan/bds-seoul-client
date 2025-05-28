@@ -121,7 +121,7 @@ const ProcessStatusItem = (props: ProcessStatusProps) => {
             case "failed":
               return <ErrorOutlineIcon sx={{ color: "red" }} />;
             default:
-              throw Error("Invalid status");
+              return <ErrorOutlineIcon sx={{ color: "gray" }} />;
           }
         })()}
       </ListItemIcon>
