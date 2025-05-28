@@ -1,6 +1,7 @@
 ﻿import { CircularProgress, Tab, Tabs, Typography } from "@mui/material";
 import { HorizontalBarchart } from "./HorizontalBarchart.tsx";
 import { useBarchart } from "../hooks";
+import { VerticalBarchart } from "./VerticalBarchart.tsx";
 
 export const BarchartTabs = () => {
   const { isLoading, gameId, activeTabId, onTabClick } = useBarchart();
@@ -76,7 +77,7 @@ export const BarchartTabs = () => {
             }}
           >
             {activeTabId === 1 && <HorizontalBarchart />}
-            {activeTabId === 2 && <HorizontalBarchart />}
+            {activeTabId === 2 && <VerticalBarchart />}
           </section>
         </>
       ) : (

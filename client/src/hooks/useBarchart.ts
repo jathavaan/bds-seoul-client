@@ -14,7 +14,7 @@ export const useBarchart = () => {
 
   const isLoading =
     useSelector((state: RootState) =>
-      selectIsAwaitingResultFromScrape(state, gameId),
+      selectIsAwaitingResultFromScrape(state, gameId!),
     ) && gameId !== undefined;
 
   const onTabClick = (tabId: number) => {
