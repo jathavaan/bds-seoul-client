@@ -13,6 +13,7 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
 import type { GameListProps, ProcessStatusProps } from "./component.types.ts";
 import { useGameList, useGameListItem } from "../hooks";
 
@@ -57,13 +58,7 @@ const GameListItem = (props: GameListProps) => {
         </ListItemIcon>
       </ListItemButton>
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-        <List
-          component="div"
-          disablePadding
-          sx={(theme) => ({
-            pl: theme.spacing(2),
-          })}
-        >
+        <List component="div" disablePadding>
           <ProcessStatusItem statusText="Checking cache" status="completed" />
           <ProcessStatusItem
             statusText="Scraping Steam reviews"
@@ -93,7 +88,12 @@ const ProcessStatusItem = (props: ProcessStatusProps) => {
         },
       })}
     >
-      <ListItemText primary={props.statusText} />
+      <ListItemText
+        primary={props.statusText}
+        sx={(theme) => ({
+          pl: theme.spacing(2),
+        })}
+      />
       <ListItemIcon>
         {(() => {
           switch (props.status) {
@@ -121,7 +121,7 @@ const ProcessStatusItem = (props: ProcessStatusProps) => {
             case "failed":
               return <ErrorOutlineIcon sx={{ color: "red" }} />;
             default:
-              return <ErrorOutlineIcon sx={{ color: "gray" }} />;
+              return <CrisisAlertIcon sx={{ color: "red" }} />;
           }
         })()}
       </ListItemIcon>
