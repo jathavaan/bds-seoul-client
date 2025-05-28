@@ -20,7 +20,7 @@ export const TriggerScrapeForm = () => {
         fullWidth
         placeholder="Steam Game ID (e.g. 703)..."
         type="number"
-        value={formValue}
+        value={formValue ?? ''}
         sx={(theme) => ({
           marginRight: theme.spacing(2),
         })}
