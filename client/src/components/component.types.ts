@@ -7,8 +7,6 @@
 
 export interface GameListProps {
   steamGameId: number;
-  isLoading: boolean;
-  isExpanded: boolean;
 }
 
 export interface ProcessStatusProps {

@@ -1,12 +1,12 @@
 ﻿export interface AppState {
   triggerScrapeFormInput: number | undefined;
   isTriggerScrapeButtonDisabled: boolean;
-  games: { [gameId: number]: Game };
+  games: Record<number, Game>;
 }
 
 export interface Game {
   gameId: number;
-  isLoading: boolean;
+  isAwaitingResultFromScrape: boolean;
   isExpandedInSidebar: boolean;
   isActiveInTableView: boolean;
   recommendations: Recommendation[];

@@ -1,5 +1,6 @@
 ﻿import { useDispatch, useSelector } from "react-redux";
 import {
+  addGameToDictionary,
   selectIsTriggerScrapeFormButtonDisabled,
   selectTriggerScrapeFormInput,
   setTriggerScrapeFormInput,
@@ -15,7 +16,9 @@ export const useTriggerScrapeForm = () => {
     dispatch(setTriggerScrapeFormInput(gameId));
   };
 
-  const onButtonClick = () => {};
+  const onButtonClick = () => {
+    if (formValue) dispatch(addGameToDictionary(formValue));
+  };
 
   return { formValue, isButtonDisabled, handleScrapeFormUpdate, onButtonClick };
 };

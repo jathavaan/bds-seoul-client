@@ -14,30 +14,34 @@ import ScheduleIcon from "@mui/icons-material/Schedule";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import type { GameListProps, ProcessStatusProps } from "./component.types.ts";
+import { useGameList, useGameListItem } from "../hooks";
 
 export const GameList = () => {
+  const { games } = useGameList();
   return (
     <List>
-      <GameListItem steamGameId={703} isLoading={true} isExpanded={true} />
-      <GameListItem steamGameId={24103} isLoading={false} isExpanded={false} />
-      <GameListItem steamGameId={43225} isLoading={false} isExpanded={false} />
-      <GameListItem steamGameId={2301} isLoading={false} isExpanded={false} />
-      <GameListItem steamGameId={423525} isLoading={false} isExpanded={false} />
+      {Object.keys(games).map((key) => (
+        <GameListItem key={key} steamGameId={Number(key)} />
+      ))}
     </List>
   );
 };
 
 const GameListItem = (props: GameListProps) => {
+  const { isExpanded, isLoading, handleClick } = useGameListItem(
+    props.steamGameId,
+  );
   return (
     <>
       <ListItemButton
+        onClick={handleClick}
         sx={(theme) => ({
           "&:hover": { backgroundColor: theme.palette.primary.light },
         })}
       >
         <ListItemText primary={props.steamGameId} />
         <ListItemIcon>
-          {props.isLoading ? (
+          {isLoading ? (
             <CircularProgress
               size={20}
               sx={(theme) => ({
@@ -49,10 +53,10 @@ const GameListItem = (props: GameListProps) => {
           )}
         </ListItemIcon>
         <ListItemIcon>
-          {props.isExpanded ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+          {isExpanded ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
         </ListItemIcon>
       </ListItemButton>
-      <Collapse in={props.isExpanded} timeout="auto" unmountOnExit>
+      <Collapse in={isExpanded} timeout="auto" unmountOnExit>
         <List
           component="div"
           disablePadding
