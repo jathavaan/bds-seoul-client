@@ -1,4 +1,6 @@
 ﻿export interface AppState {
+  triggerScrapeFormInput: number | undefined;
+  isTriggerScrapeButtonDisabled: boolean;
   games: { [gameId: number]: Game };
 }
 

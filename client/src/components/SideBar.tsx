@@ -1,5 +1,5 @@
 ﻿import { Divider, Stack } from "@mui/material";
-import { TriggerSearchForm } from "./TriggerSearchForm.tsx";
+import { TriggerScrapeForm } from "./TriggerScrapeForm.tsx";
 import { GameList } from "./GameList.tsx";
 
 export const SideBar = () => {
@@ -13,7 +13,7 @@ export const SideBar = () => {
         padding: theme.spacing(2),
       })}
     >
-      <TriggerSearchForm />
+      <TriggerScrapeForm />
       <GameList />
     </Stack>
   );

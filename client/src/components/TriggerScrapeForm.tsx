@@ -1,7 +1,10 @@
 ﻿import { Button, FormControl, TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { useTriggerScrapeForm } from "../hooks";
 
-export const TriggerSearchForm = () => {
+export const TriggerScrapeForm = () => {
+  const { formValue, isButtonDisabled, handleScrapeFormUpdate, onButtonClick } =
+    useTriggerScrapeForm();
   return (
     <FormControl
       sx={{
@@ -16,13 +19,18 @@ export const TriggerSearchForm = () => {
         variant="filled"
         fullWidth
         placeholder="Steam Game ID (e.g. 703)..."
+        type="number"
+        value={formValue}
         sx={(theme) => ({
           marginRight: theme.spacing(2),
         })}
+        onChange={(e) => handleScrapeFormUpdate(e.target.value)}
       />
       <Button
         variant="contained"
         endIcon={<SearchIcon />}
+        disabled={isButtonDisabled}
+        onClick={() => onButtonClick()}
         sx={(theme) => ({
           backgroundColor: theme.palette.secondary.main,
           "&:hover": {
