@@ -1,6 +1,7 @@
 ﻿import {
   CircularProgress,
   Collapse,
+  IconButton,
   List,
   ListItem,
   ListItemButton,
@@ -21,22 +22,35 @@ export const GameList = () => {
   const { games } = useGameList();
   return (
     <List>
-      {Object.keys(games).map((key) => (
-        <GameListItem key={key} steamGameId={Number(key)} />
-      ))}
+      {Object.keys(games).length === 0 ? (
+        <ListItem>
+          <ListItemText primary="No games available." />
+        </ListItem>
+      ) : (
+        Object.keys(games).map((key) => (
+          <GameListItem key={key} steamGameId={Number(key)} />
+        ))
+      )}
     </List>
   );
 };
 
 const GameListItem = (props: GameListProps) => {
-  const { isExpanded, isLoading, handleClick } = useGameListItem(
-    props.steamGameId,
-  );
+  const {
+    isExpanded,
+    isLoading,
+    isActiveGame,
+    handleSetActiveGameClick,
+    handleExpandGameClick,
+  } = useGameListItem(props.steamGameId);
   return (
     <>
       <ListItemButton
-        onClick={handleClick}
+        onClick={handleSetActiveGameClick}
         sx={(theme) => ({
+          backgroundColor: isActiveGame
+            ? theme.palette.primary.dark
+            : "transparent",
           "&:hover": { backgroundColor: theme.palette.primary.light },
         })}
       >
@@ -54,7 +68,14 @@ const GameListItem = (props: GameListProps) => {
           )}
         </ListItemIcon>
         <ListItemIcon>
-          {isExpanded ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              handleExpandGameClick();
+            }}
+          >
+            {isExpanded ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+          </IconButton>
         </ListItemIcon>
       </ListItemButton>
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
@@ -81,13 +102,7 @@ const GameListItem = (props: GameListProps) => {
 
 const ProcessStatusItem = (props: ProcessStatusProps) => {
   return (
-    <ListItem
-      sx={(theme) => ({
-        "&:hover": {
-          backgroundColor: theme.palette.primary.light,
-        },
-      })}
-    >
+    <ListItem sx={() => ({})}>
       <ListItemText
         primary={props.statusText}
         sx={(theme) => ({

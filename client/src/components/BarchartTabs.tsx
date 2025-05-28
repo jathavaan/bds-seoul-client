@@ -68,12 +68,13 @@ export const BarchartTabs = () => {
               })}
             />
           </Tabs>
+
           <section
             style={{
               height: "100%",
               width: "100%",
               display: "flex",
-              justifyContent: "center",
+              flexDirection: "column",
             }}
           >
             {activeTabId === 1 && <HorizontalBarchart />}

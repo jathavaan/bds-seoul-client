@@ -29,9 +29,12 @@ const appSlice = createSlice({
         state.isTriggerScrapeButtonDisabled = true;
       }
     },
-    toggleGameInSidebar: (state, action: PayloadAction<number>) => {
+    setActiveGame: (state, action: PayloadAction<number>) => {
       const gameId = action.payload;
       state.activeGameId = gameId;
+    },
+    toggleGameInSidebar: (state, action: PayloadAction<number>) => {
+      const gameId = action.payload;
       state.games[gameId].isExpandedInSidebar =
         !state.games[gameId].isExpandedInSidebar;
     },
@@ -39,7 +42,7 @@ const appSlice = createSlice({
       const gameId = action.payload;
       state.games[gameId] = {
         gameId: gameId,
-        isAwaitingResultFromScrape: false,
+        isAwaitingResultFromScrape: false, // TODO: Set to true when data is implemented
         isExpandedInSidebar: true,
         isActiveInTableView: true,
         recommendations: [],
@@ -58,6 +61,7 @@ export const {
   setTriggerScrapeFormInput,
   toggleGameInSidebar,
   addGameToDictionary,
+  setActiveGame,
   setActiveTab,
 } = appSlice.actions;
 
