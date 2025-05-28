@@ -67,13 +67,17 @@ const GameListItem = (props: GameListProps) => {
           <ProcessStatusItem statusText="Checking cache" status="completed" />
           <ProcessStatusItem
             statusText="Scraping Steam reviews"
-            status="skipped"
+            status="completed"
           />
           <ProcessStatusItem
             statusText="Running MapReduce job"
             status="in_progress"
           />
-          <ProcessStatusItem statusText="Caching result" status="failed" />
+          <ProcessStatusItem statusText="Caching result" status="queued" />
+          <ProcessStatusItem
+            statusText="Waiting for response"
+            status="queued"
+          />
         </List>
       </Collapse>
     </>
