@@ -19,7 +19,7 @@ const appSlice = createSlice({
       }
 
       const gameId = Number(action.payload);
-      if (gameId! > 0) {
+      if (gameId > 0) {
         state.triggerScrapeFormInput = gameId;
         state.isTriggerScrapeButtonDisabled = false;
       } else {
