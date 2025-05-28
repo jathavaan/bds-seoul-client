@@ -1,6 +1,8 @@
 ﻿export interface AppState {
+  activeGameId: number | undefined;
   triggerScrapeFormInput: number | undefined;
   isTriggerScrapeButtonDisabled: boolean;
+  activeTab: 1 | 2;
   games: Record<number, Game>;
 }
 
