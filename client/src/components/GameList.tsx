@@ -1,0 +1,122 @@
+﻿import {
+  CircularProgress,
+  Collapse,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import ArrowDropUpIcon from "@mui/icons-material/ArrowDropUp";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import SkipNextIcon from "@mui/icons-material/SkipNext";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import type { GameListProps, ProcessStatusProps } from "./component.types.ts";
+
+export const GameList = () => {
+  return (
+    <List>
+      <GameListItem steamGameId={703} isLoading={true} isExpanded={true} />
+      <GameListItem steamGameId={24103} isLoading={false} isExpanded={false} />
+      <GameListItem steamGameId={43225} isLoading={false} isExpanded={false} />
+      <GameListItem steamGameId={2301} isLoading={false} isExpanded={false} />
+      <GameListItem steamGameId={423525} isLoading={false} isExpanded={false} />
+    </List>
+  );
+};
+
+const GameListItem = (props: GameListProps) => {
+  return (
+    <>
+      <ListItemButton
+        sx={(theme) => ({
+          "&:hover": { backgroundColor: theme.palette.primary.light },
+        })}
+      >
+        <ListItemText primary={props.steamGameId} />
+        <ListItemIcon>
+          {props.isLoading ? (
+            <CircularProgress
+              size={20}
+              sx={(theme) => ({
+                color: theme.palette.primary.contrastText,
+              })}
+            />
+          ) : (
+            <CheckIcon />
+          )}
+        </ListItemIcon>
+        <ListItemIcon>
+          {props.isExpanded ? <ArrowDropUpIcon /> : <ArrowDropDownIcon />}
+        </ListItemIcon>
+      </ListItemButton>
+      <Collapse in={props.isExpanded} timeout="auto" unmountOnExit>
+        <List
+          component="div"
+          disablePadding
+          sx={(theme) => ({
+            pl: theme.spacing(2),
+          })}
+        >
+          <ProcessStatusItem statusText="Checking cache" status="completed" />
+          <ProcessStatusItem
+            statusText="Scraping Steam reviews"
+            status="skipped"
+          />
+          <ProcessStatusItem
+            statusText="Running MapReduce job"
+            status="in_progress"
+          />
+          <ProcessStatusItem statusText="Caching result" status="failed" />
+        </List>
+      </Collapse>
+    </>
+  );
+};
+
+const ProcessStatusItem = (props: ProcessStatusProps) => {
+  return (
+    <ListItem
+      sx={(theme) => ({
+        "&:hover": {
+          backgroundColor: theme.palette.primary.light,
+        },
+      })}
+    >
+      <ListItemText primary={props.statusText} />
+      <ListItemIcon>
+        {(() => {
+          switch (props.status) {
+            case "queued":
+              return (
+                <ScheduleIcon
+                  sx={(theme) => ({
+                    color: theme.palette.primary.contrastText,
+                  })}
+                />
+              );
+            case "in_progress":
+              return (
+                <CircularProgress
+                  size={20}
+                  sx={(theme) => ({
+                    color: theme.palette.primary.contrastText,
+                  })}
+                />
+              );
+            case "skipped":
+              return <SkipNextIcon sx={{ color: "gray" }} />;
+            case "completed":
+              return <CheckIcon sx={{ color: "green" }} />;
+            case "failed":
+              return <ErrorOutlineIcon sx={{ color: "red" }} />;
+            default:
+              throw Error("Invalid status");
+          }
+        })()}
+      </ListItemIcon>
+    </ListItem>
+  );
+};
