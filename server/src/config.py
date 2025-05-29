@@ -24,7 +24,7 @@ class Config(Enum):
     SEQ_LOG_BATCH_SIZE = 1
 
     CUTOFF_DATE = datetime.strptime(f'2018-05-26', "%Y-%m-%d")  # TODO: Remove this. Cutoff date is dynamic
-    TARGET_REVIEW_COUNT = 300
+    TARGET_REVIEW_COUNT = 1000
 
     EDGE_PATH = "/usr/bin/microsoft-edge"
     EDGE_DRIVER_PATH = "/usr/bin/msedgedriver"
