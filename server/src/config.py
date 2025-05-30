@@ -27,5 +27,5 @@ class Config(Enum):
     CUTOFF_DATE = datetime.strptime(f'2018-05-26', "%Y-%m-%d")
     TARGET_REVIEW_COUNT = 100
 
-    EDGE_PATH = "/usr/bin/microsoft-edge"
-    EDGE_DRIVER_PATH = "/usr/bin/msedgedriver"
+    CHROME_PATH = "/usr/bin/chromium-browser"
+    CHROME_DRIVER_PATH = "/usr/lib/chromium-browser/chromedriver"

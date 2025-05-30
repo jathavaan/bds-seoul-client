@@ -14,13 +14,13 @@ from src.domain.dtos.review import ReviewDto
 
 
 class ScraperService:
-    __driver: webdriver.Edge
+    __driver: webdriver.Chrome
     __url: str | None = None
     __game_id: int
     __logger: logging.Logger
     __review_producer: ReviewProducer
 
-    def __init__(self, logger: logging.Logger, driver: webdriver.Edge, review_producer: ReviewProducer):
+    def __init__(self, logger: logging.Logger, driver: webdriver.Chrome, review_producer: ReviewProducer):
         self.__driver = driver
         self.__logger = logger
         self.__review_producer = review_producer
@@ -87,9 +87,11 @@ class ScraperService:
 
     def scroll_down(self, old_review_count: int) -> bool:
         try:
-            self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            self.__driver.execute_script(
+                "window.scrollTo(0, document.body.scrollHeight);")
             WebDriverWait(self.__driver, 2).until(
-                lambda d: len(d.find_elements(By.CLASS_NAME, "apphub_CardContentMain")) > old_review_count
+                lambda d: len(d.find_elements(
+                    By.CLASS_NAME, "apphub_CardContentMain")) > old_review_count
             )
             return True
         except Exception:

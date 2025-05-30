@@ -1,6 +1,5 @@
 ﻿from dependency_injector import containers, providers
 from selenium import webdriver
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from selenium.webdriver.edge.options import Options
 from selenium.webdriver.edge.service import Service
 
@@ -11,17 +10,17 @@ from src.application.kafka.producers import LastScrapedDateProducer, ReviewProdu
 from src.application.services.scraper_service import ScraperService
 
 
-def driver_setup() -> webdriver.Edge:
+def driver_setup() -> webdriver.Chrome:
     options = Options()
-    options.binary_location = Config.EDGE_PATH.value
+    options.binary_location = Config.CHROME_PATH.value
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    service = Service(Config.EDGE_DRIVER_PATH.value)
+    service = Service(Config.CHROME_DRIVER_PATH.value)
 
-    driver = webdriver.Edge(service=service, options=options)
+    driver = webdriver.Chrome(service=service, options=options)
     return driver
 
 
@@ -31,6 +30,7 @@ class Container(containers.DeclarativeContainer):
 
     logger = providers.Singleton(
         Logger.get_logger, name="API", level=Config.LOGGING_LEVEL.value)
+
     driver = providers.Singleton(driver_setup)
 
     last_scraped_date_producer = providers.Singleton(
