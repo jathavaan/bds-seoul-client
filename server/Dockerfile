@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Optional: Link chromedriver if needed
-RUN ln -s /usr/lib/chromium/chromedriver /usr/bin/chromedriver
+RUN ln -sf /usr/lib/chromium/chromedriver /usr/bin/chromedriver
 
 # Set environment variable for Chrome
 ENV CHROME_BIN=/usr/bin/chromium
