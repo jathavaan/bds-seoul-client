@@ -26,11 +26,7 @@ def driver_setup() -> webdriver.Edge:
 
 
 class Container(containers.DeclarativeContainer):
-    wiring_config = containers.WiringConfiguration(
-        modules=["src.scraper.pipelines"])
-
-    logger = providers.Singleton(
-        Logger.get_logger, name="API", level=Config.LOGGING_LEVEL.value)
+    logger = providers.Singleton(Logger.get_logger, name="API", level=Config.LOGGING_LEVEL.value)
     driver = providers.Singleton(driver_setup)
 
     last_scraped_date_producer = providers.Singleton(
