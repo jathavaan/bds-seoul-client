@@ -1,7 +1,7 @@
 ﻿from dependency_injector import containers, providers
 from selenium import webdriver
-from selenium.webdriver.edge.options import Options
-from selenium.webdriver.edge.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 
 from src import Config
 from src.application.common import Logger
