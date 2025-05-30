@@ -1,16 +1,14 @@
 ﻿import logging
-import random
 import time
 from abc import ABC
-from datetime import datetime
 
 from src.application.base import RequestHandlerBase
 from src.application.common import Request, Response
 from src.application.kafka.consumers import LastScrapedDateConsumer, FinalResultConsumer
-from src.application.kafka.producers import LastScrapedDateProducer, ReviewProducer
+from src.application.kafka.producers import LastScrapedDateProducer
 from src.application.services.scraper_service.scraper_service import ScraperService
 from src.application.view_models import RecommendationVm
-from src.domain.dtos import LastScrapedDateRequestDto, LastScrapedDateResponseDto, ReviewDto, FinalResultDto
+from src.domain.dtos import LastScrapedDateRequestDto, LastScrapedDateResponseDto, FinalResultDto
 from .get_recommendations_query import GetRecommendationsQuery
 
 
@@ -49,12 +47,24 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
             if has_responded and response.correlation_id == request.correlation_id:
                 break
 
+        if response.result and request.correlation_id == response.correlation_id:
+            self.__logger.info(f"Result for {request.payload.steam_game_id} was cached.")
+
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            self.__logger.info(
+                f"Request {request.correlation_id} responded in {round(elapsed_time, 2)} second(s)"
+            )
+
+            return Response([
+                RecommendationVm(**recommendation.to_dict()) for recommendation in response.result.recommendations
+            ])
+
         last_scraped_date = response.last_scraped_date
-
         self.__scraper_service.scrape(
-            request.payload.steam_game_id, request.correlation_id)
+            request.payload.steam_game_id, request.correlation_id
+        )
 
-        final_result: FinalResultDto | None = None
         while True:
             final_result = self.__final_result_consumer.consume()
             if final_result is not None and final_result.correlation_id == request.correlation_id:
