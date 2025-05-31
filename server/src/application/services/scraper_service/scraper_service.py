@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 from src.application.kafka.producers.review_producer import ReviewProducer
 from src.config import Config
@@ -27,7 +28,8 @@ class ScraperService:
 
     def set_game_id(self, game_id: int):
         self.__game_id = game_id
-        self.__url = f'https://steamcommunity.com/app/{self.__game_id}/reviews/?p=1&browsefilter=mostrecent'
+        self.__url = f"https://steamcommunity.com/app/{self.__game_id}/reviews/?browsefilter=mostrecent&snr=1_5_100010_&p=1&filterLanguage=all"
+        self.__logger.info(f"Scraping {self.__url}")
 
     def parse_posted_date(self, date: str) -> tuple[str, datetime]:
         date = date.replace("Posted: ", "").strip()
@@ -92,8 +94,8 @@ class ScraperService:
                 lambda d: len(d.find_elements(By.CLASS_NAME, "apphub_CardContentMain")) > old_review_count
             )
             return True
-        except Exception:
-            self.__logger.info("No new reviews loaded. Ending scroll.")
+        except TimeoutException:
+            self.__logger.info(f"No new reviews loaded. Stopped scrolling.")
             return False
 
     def extract_and_send(
@@ -114,7 +116,8 @@ class ScraperService:
             ]
 
             for future in as_completed(futures):
-                result = future.result()
+                result: ReviewDto | None = future.result()
+
                 if result:
                     self.__review_producer.produce(result)
                     if result.is_last_review:
@@ -131,6 +134,7 @@ class ScraperService:
 
         self.__driver.get(self.__url)
         old_review_count = 0
+
         while True:
             has_more_reviews = self.scroll_down(old_review_count)
             if not has_more_reviews:
@@ -145,7 +149,12 @@ class ScraperService:
             current_review_count = len(reviews)
 
             is_done_extracting = self.extract_and_send(
-                old_review_count, current_review_count, reviews, correlation_id)
+                old_review_count,
+                current_review_count,
+                reviews,
+                correlation_id
+            )
+
             if is_done_extracting:
                 break
 
@@ -153,7 +162,8 @@ class ScraperService:
 
         end_time = time.time()
         self.__logger.info(
-            f"Scraping finished for {game_id} in {end_time - start_time:.2f} seconds.")
+            f"Scraping finished for {game_id} in {end_time - start_time:.2f} seconds."
+        )
 
     def quit_driver(self):
         self.__logger.info("Shut down Selenium driver")
