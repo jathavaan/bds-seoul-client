@@ -5,6 +5,8 @@ import type { RootState } from "./store.ts";
 const initialState: AppState = {
   triggerScrapeFormInput: undefined,
   isTriggerScrapeButtonDisabled: true,
+  activeGameId: undefined,
+  activeTab: 1,
   games: {},
 };
 
@@ -27,6 +29,10 @@ const appSlice = createSlice({
         state.isTriggerScrapeButtonDisabled = true;
       }
     },
+    setActiveGame: (state, action: PayloadAction<number>) => {
+      const gameId = action.payload;
+      state.activeGameId = gameId;
+    },
     toggleGameInSidebar: (state, action: PayloadAction<number>) => {
       const gameId = action.payload;
       state.games[gameId].isExpandedInSidebar =
@@ -36,11 +42,17 @@ const appSlice = createSlice({
       const gameId = action.payload;
       state.games[gameId] = {
         gameId: gameId,
-        isAwaitingResultFromScrape: true,
+        isAwaitingResultFromScrape: false, // TODO: Set to true when data is implemented
         isExpandedInSidebar: true,
         isActiveInTableView: true,
         recommendations: [],
       };
+    },
+    setActiveTab: (state, action: PayloadAction<number>) => {
+      const tabId = action.payload;
+      if (tabId === 1 || tabId === 2) {
+        state.activeTab = tabId;
+      }
     },
   },
 });
@@ -49,6 +61,8 @@ export const {
   setTriggerScrapeFormInput,
   toggleGameInSidebar,
   addGameToDictionary,
+  setActiveGame,
+  setActiveTab,
 } = appSlice.actions;
 
 export const selectTriggerScrapeFormInput = (state: RootState) =>
@@ -62,5 +76,8 @@ export const selectIsAwaitingResultFromScrape = (
   gameId: number,
 ) => state.appReducer.games[gameId]?.isAwaitingResultFromScrape;
 export const selectGames = (state: RootState) => state.appReducer.games;
+export const selectActiveGameId = (state: RootState) =>
+  state.appReducer.activeGameId;
+export const selectActiveTab = (state: RootState) => state.appReducer.activeTab;
 
 export const appReducer = appSlice.reducer;
