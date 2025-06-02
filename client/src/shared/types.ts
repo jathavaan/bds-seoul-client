@@ -23,6 +23,7 @@ export interface Recommendation {
 
 export interface GetRecommendationsByGameIdRequest {
   steam_game_id: number;
+  max_review_count: number;
 }
 
 export interface GetRecommendationsByGameIdResponse {

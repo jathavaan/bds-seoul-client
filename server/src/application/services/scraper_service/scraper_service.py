@@ -10,7 +10,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 
 from src.application.kafka.producers.review_producer import ReviewProducer
-from src.application.services.scraper_service import ScraperDto
+from .scraper_dto import ScraperDto
 from src.domain.dtos.review import ReviewDto
 
 
@@ -27,9 +27,12 @@ class ScraperService:
         self.__review_producer = review_producer
 
     def scrape(self, dto: ScraperDto):
-        self.__logger.info(f"Scraping Steam game ID {dto.game_id}")
-        start_time = time.time()
         self.__set_game_id(dto.game_id)
+        self.__logger.info(
+            f"Scraping Steam game ID {dto.game_id} until {dto.max_reviews_count} reviews have been scraped or review date is {dto.last_scraped_date} [{self.__url}]"
+        )
+
+        start_time = time.time()
         if self.__driver is None:
             raise ValueError("URL is None")
 
@@ -71,45 +74,6 @@ class ScraperService:
     def quit_driver(self):
         self.__logger.info("Shut down Selenium driver")
         self.__driver.quit()
-
-    def __set_game_id(self, game_id: int):
-        self.__game_id = game_id
-        self.__url = f"https://steamcommunity.com/app/{self.__game_id}/reviews/?browsefilter=mostrecent&snr=1_5_100010_&p=1&filterLanguage=all"
-        self.__logger.info(f"Scraping {self.__url}")
-
-    @staticmethod
-    def __parse_posted_date(date: str) -> tuple[str, datetime]:
-        date = date.replace("Posted: ", "").strip()
-        if "," not in date:
-            date = f"{date}, {datetime.now().year}"
-
-        if date[0].isdigit():
-            date_obj = datetime.strptime(date, "%d %B, %Y")
-        else:
-            date_obj = datetime.strptime(date, "%B %d, %Y")
-        date = date_obj.strftime("%Y-%m-%d")
-        return date, date_obj
-
-    def __is_last_review_check(
-            self,
-            review_count: int,
-            max_reviews_count: int,
-            review_date: datetime,
-            last_scraped_date: datetime | None
-    ) -> bool:
-        if last_scraped_date and review_date < last_scraped_date:
-            self.__logger.info(
-                f'Ending scrolling after scraping {review_count} reviews. Reached last scraped date ({last_scraped_date})'
-            )
-            return True
-
-        if review_count >= max_reviews_count:
-            self.__logger.info(
-                f'Ending scrolling after scraping {review_count} reviews. Reached max number of reviews to scrape'
-            )
-            return True
-
-        return False
 
     def __parse_review(
             self,
@@ -155,6 +119,44 @@ class ScraperService:
             correlation_id=correlation_id
         )
 
+    def __set_game_id(self, game_id: int):
+        self.__game_id = game_id
+        self.__url = f"https://steamcommunity.com/app/{self.__game_id}/reviews/?browsefilter=mostrecent&snr=1_5_100010_&p=1&filterLanguage=all"
+
+    @staticmethod
+    def __parse_posted_date(date: str) -> tuple[str, datetime]:
+        date = date.replace("Posted: ", "").strip()
+        if "," not in date:
+            date = f"{date}, {datetime.now().year}"
+
+        if date[0].isdigit():
+            date_obj = datetime.strptime(date, "%d %B, %Y")
+        else:
+            date_obj = datetime.strptime(date, "%B %d, %Y")
+        date = date_obj.strftime("%Y-%m-%d")
+        return date, date_obj
+
+    def __is_last_review_check(
+            self,
+            review_count: int,
+            max_reviews_count: int,
+            review_date: datetime,
+            last_scraped_date: datetime | None
+    ) -> bool:
+        if last_scraped_date and review_date >= last_scraped_date:
+            self.__logger.info(
+                f'Ending scrolling after scraping {review_count} reviews. Reached last scraped date ({last_scraped_date})'
+            )
+            return True
+
+        if review_count >= max_reviews_count:
+            self.__logger.info(
+                f'Ending scrolling after scraping {review_count} reviews. Reached max number of reviews to scrape'
+            )
+            return True
+
+        return False
+
     def __scroll_down(self, old_review_count: int) -> bool:
         try:
             self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -175,8 +177,8 @@ class ScraperService:
             last_scraped_date: datetime | None,
             correlation_id: str
     ) -> bool:
-        self.__logger.debug(
-            f'Sending reviews {previous_review_count} to {current_review_count} to Kafka'
+        self.__logger.info(
+            f"Publishing reviews {previous_review_count}-{current_review_count}/{max_review_count} to review consumer on Kafka service"
         )
 
         with ThreadPoolExecutor() as executor:

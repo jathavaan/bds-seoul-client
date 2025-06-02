@@ -64,7 +64,7 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
 
         self.__scraper_service.scrape(dto=ScraperDto(
             game_id=request.payload.steam_game_id,
-            max_reviews_count=Config.TARGET_REVIEW_COUNT.value,  # TODO: Change this to query param
+            max_reviews_count=request.payload.max_review_count,
             last_scraped_date=response.last_scraped_date,
             correlation_id=request.correlation_id
         ))

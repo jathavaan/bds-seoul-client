@@ -30,6 +30,7 @@ export const useTriggerScrapeForm = () => {
     dispatch(setGameToLoadingState(formValue));
     const queryParameters: GetRecommendationsByGameIdRequest = {
       steam_game_id: formValue,
+      max_review_count: 750,
     };
 
     const response = await fetch<
