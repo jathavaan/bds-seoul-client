@@ -4,7 +4,8 @@ import { useBarchart } from "../hooks";
 import { VerticalBarchart } from "./VerticalBarchart.tsx";
 
 export const BarchartTabs = () => {
-  const { isLoading, gameId, activeTabId, onTabClick } = useBarchart();
+  const { isLoading, gameId, activeTabId, recommendations, onTabClick } =
+    useBarchart();
   return (
     <section
       style={{
@@ -20,7 +21,7 @@ export const BarchartTabs = () => {
         <Typography variant="h3" sx={{ fontSize: "1rem", textAlign: "center" }}>
           No game selected, please select a game in the tab to the left.
         </Typography>
-      ) : !isLoading ? (
+      ) : !isLoading && recommendations !== undefined ? (
         <>
           <Tabs
             value={activeTabId}
@@ -38,7 +39,7 @@ export const BarchartTabs = () => {
             })}
           >
             <Tab
-              label="Recommendations (Normalized)"
+              label="Normalized"
               value={1}
               sx={(theme) => ({
                 textTransform: "none",
@@ -53,7 +54,7 @@ export const BarchartTabs = () => {
               })}
             />
             <Tab
-              label="Recommendations (Sum)"
+              label="Sum"
               value={2}
               sx={(theme) => ({
                 textTransform: "none",
@@ -77,8 +78,12 @@ export const BarchartTabs = () => {
               flexDirection: "column",
             }}
           >
-            {activeTabId === 1 && <HorizontalBarchart />}
-            {activeTabId === 2 && <VerticalBarchart />}
+            {activeTabId === 1 && (
+              <HorizontalBarchart recommendations={recommendations} />
+            )}
+            {activeTabId === 2 && (
+              <VerticalBarchart recommendations={recommendations} />
+            )}
           </section>
         </>
       ) : (
