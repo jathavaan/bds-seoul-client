@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 
 from src.application.kafka.producers.review_producer import ReviewProducer
+from src.application.services.scraper_service import ScraperDto
 from src.config import Config
 from src.domain.dtos.review import ReviewDto
 
@@ -43,20 +44,35 @@ class ScraperService:
         date = date_obj.strftime("%Y-%m-%d")
         return date, date_obj
 
-    def is_last_review_check(self, review_number: int, date_obj: datetime) -> bool:
-        if date_obj < Config.CUTOFF_DATE.value:
+    def is_last_review_check(
+            self,
+            review_count: int,
+            max_reviews_count: int,
+            review_date: datetime,
+            last_scraped_date: datetime | None
+    ) -> bool:
+        if last_scraped_date and review_date < last_scraped_date:
             self.__logger.info(
-                f'{Config.CUTOFF_DATE.value} reached. Ending scroll.'
+                f'Ending scrolling after scraping {review_count} reviews. Reached last scraped date ({last_scraped_date})'
             )
             return True
-        if review_number >= Config.TARGET_REVIEW_COUNT.value:
+
+        if review_count >= max_reviews_count:
             self.__logger.info(
-                f'{Config.TARGET_REVIEW_COUNT.value} reviews loaded. Ending scroll.'
+                f'Ending scrolling after scraping {review_count} reviews. Reached max number of reviews to scrape'
             )
             return True
+
         return False
 
-    def parse_review(self, review_number: int, container: webdriver, correlation_id: str) -> ReviewDto | None:
+    def parse_review(
+            self,
+            container: webdriver,
+            review_count: int,
+            max_review_count: int,
+            last_scraped_date: datetime | None,
+            correlation_id: str
+    ) -> ReviewDto | None:
         try:
             date = container.find_element(By.CLASS_NAME, "date_posted").text
             hours = container.find_element(By.CLASS_NAME, "hours").text.strip()
@@ -66,23 +82,29 @@ class ScraperService:
 
         except Exception:
             self.__logger.exception(
-                f'Skipped review from {review_number} due to missing info.'
+                f'Skipped review from {review_count} due to missing info.'
             )
             return None
 
-        date_string, date_obj = self.parse_posted_date(date)
+        review_date_string, review_date = self.parse_posted_date(date)
         is_recommended = is_recommended_string == "Recommended"
         hours = float(hours.split()[0].replace(
             ",", "")
         ) if hours else 0.0
 
-        is_last_review = self.is_last_review_check(review_number, date_obj)
+        is_last_review = self.is_last_review_check(
+            review_count=review_count,
+            max_reviews_count=max_review_count,
+            review_date=review_date,
+            last_scraped_date=last_scraped_date
+        )
+
         return ReviewDto(
             game_id=self.__game_id,
-            date_posted=date_string,
+            date_posted=review_date_string,
             is_recommended=is_recommended,
             hours_played=hours,
-            user_id=review_number,
+            user_id=review_count,
             is_last_review=is_last_review,
             correlation_id=correlation_id
         )
@@ -100,19 +122,27 @@ class ScraperService:
 
     def extract_and_send(
             self,
-            old_review_count: int,
+            previous_review_count: int,
             current_review_count: int,
             reviews: list[WebElement],
+            max_review_count: int,
+            last_scraped_date: datetime | None,
             correlation_id: str
     ) -> bool:
         self.__logger.debug(
-            f'Sending reviews {old_review_count} to {current_review_count} to Kafka'
+            f'Sending reviews {previous_review_count} to {current_review_count} to Kafka'
         )
 
         with ThreadPoolExecutor() as executor:
             futures = [
-                executor.submit(self.parse_review, old_review_count + i, container, correlation_id) for i, container
-                in enumerate(reviews[old_review_count:current_review_count], start=1)
+                executor.submit(
+                    self.parse_review,
+                    container,
+                    previous_review_count + i,
+                    max_review_count,
+                    last_scraped_date,
+                    correlation_id
+                ) for i, container in enumerate(reviews[previous_review_count:current_review_count], start=1)
             ]
 
             for future in as_completed(futures):
@@ -125,44 +155,46 @@ class ScraperService:
 
         return False
 
-    def scrape(self, game_id: int, correlation_id: str):
-        self.__logger.info(f"Scraping Steam game ID {game_id}")
+    def scrape(self, dto: ScraperDto):
+        self.__logger.info(f"Scraping Steam game ID {dto.game_id}")
         start_time = time.time()
-        self.set_game_id(game_id)
+        self.set_game_id(dto.game_id)
         if self.__driver is None:
             raise ValueError("URL is None")
 
         self.__driver.get(self.__url)
-        old_review_count = 0
+        previous_review_count = 0
 
         while True:
-            has_more_reviews = self.scroll_down(old_review_count)
+            has_more_reviews = self.scroll_down(previous_review_count)
             if not has_more_reviews:
                 break
 
+            reviews: list[WebElement] = []
             try:
                 reviews = self.__driver.find_elements(
                     By.CLASS_NAME, "apphub_CardContentMain")
-            except Exception as e:
+            except Exception:
                 self.__logger.error("Failed to collect review containers.")
 
             current_review_count = len(reviews)
-
             is_done_extracting = self.extract_and_send(
-                old_review_count,
-                current_review_count,
-                reviews,
-                correlation_id
+                previous_review_count=previous_review_count,
+                current_review_count=current_review_count,
+                reviews=reviews,
+                max_review_count=dto.max_reviews_count,
+                last_scraped_date=dto.last_scraped_date,
+                correlation_id=dto.correlation_id
             )
 
             if is_done_extracting:
                 break
 
-            old_review_count = current_review_count
+            previous_review_count = current_review_count
 
         end_time = time.time()
         self.__logger.info(
-            f"Scraping finished for {game_id} in {end_time - start_time:.2f} seconds."
+            f"Scraping finished for {dto.game_id} in {end_time - start_time:.2f} seconds."
         )
 
     def quit_driver(self):
