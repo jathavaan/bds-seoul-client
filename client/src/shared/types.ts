@@ -1,6 +1,9 @@
 ﻿export interface AppState {
+  activeGameId: number | undefined;
   triggerScrapeFormInput: number | undefined;
   isTriggerScrapeButtonDisabled: boolean;
+  activeTab: 1 | 2;
+  activeRecommendations: Recommendation[] | undefined;
   games: Record<number, Game>;
 }
 
@@ -13,7 +16,20 @@ export interface Game {
 }
 
 export interface Recommendation {
-  timeInterval: string;
-  sumRecommended: number;
-  sumNotRecommended: number;
+  time_interval: string;
+  sum_recommended: number;
+  sum_not_recommended: number;
+}
+
+export interface GetRecommendationsByGameIdRequest {
+  steam_game_id: number;
+  max_review_count: number;
+}
+
+export interface GetRecommendationsByGameIdResponse {
+  result: Recommendation[];
+}
+
+export interface BarchartProps {
+  recommendations: Recommendation[];
 }

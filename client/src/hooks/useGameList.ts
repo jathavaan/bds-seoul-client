@@ -1,8 +1,10 @@
 ﻿import { useDispatch, useSelector } from "react-redux";
 import {
+  selectActiveGameId,
   selectGames,
   selectIsAwaitingResultFromScrape,
   selectIsExpandedInSidebar,
+  setActiveGame,
   toggleGameInSidebar,
 } from "../shared";
 import type { AppDispatch, RootState } from "../shared/store.ts";
@@ -17,14 +19,25 @@ export const useGameListItem = (gameId: number) => {
   const isExpanded = useSelector((state: RootState) =>
     selectIsExpandedInSidebar(state, gameId),
   );
+  const isActiveGame = useSelector(selectActiveGameId) == gameId;
 
   const isLoading = useSelector((state: RootState) =>
     selectIsAwaitingResultFromScrape(state, gameId),
   );
 
-  const handleClick = () => {
+  const handleSetActiveGameClick = () => {
+    dispatch(setActiveGame(gameId));
+  };
+
+  const handleExpandGameClick = () => {
     dispatch(toggleGameInSidebar(gameId));
   };
 
-  return { isExpanded, isLoading, handleClick };
+  return {
+    isExpanded,
+    isLoading,
+    isActiveGame,
+    handleSetActiveGameClick,
+    handleExpandGameClick,
+  };
 };

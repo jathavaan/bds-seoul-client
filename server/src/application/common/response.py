@@ -7,3 +7,6 @@ TResponse = TypeVar("TResponse")
 @dataclass
 class Response(Generic[TResponse]):
     result: TResponse
+
+    def to_dict(self) -> dict:
+        return {"result": self.result}

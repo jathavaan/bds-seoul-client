@@ -1,10 +1,11 @@
 import { Stack } from "@mui/material";
-import { SideBar } from "./components";
+import { BarchartTabs, SideBar } from "./components";
 
 function App() {
   return (
-    <Stack direction="row" sx={{ minHeight: "100vh" }}>
+    <Stack direction="row" sx={{ minHeight: "100vh", width: "100vw" }}>
       <SideBar />
+      <BarchartTabs />
     </Stack>
   );
 }

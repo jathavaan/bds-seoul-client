@@ -1,11 +1,18 @@
 ﻿import { useDispatch, useSelector } from "react-redux";
 import {
   addGameToDictionary,
+  addRecommendations,
   selectIsTriggerScrapeFormButtonDisabled,
   selectTriggerScrapeFormInput,
+  setGameToLoadingState,
   setTriggerScrapeFormInput,
 } from "../shared";
 import type { AppDispatch } from "../shared/store.ts";
+import { fetch } from "../services/api.ts";
+import type {
+  GetRecommendationsByGameIdRequest,
+  GetRecommendationsByGameIdResponse,
+} from "../shared/types.ts";
 
 export const useTriggerScrapeForm = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -16,8 +23,27 @@ export const useTriggerScrapeForm = () => {
     dispatch(setTriggerScrapeFormInput(gameId));
   };
 
-  const onButtonClick = () => {
-    if (formValue) dispatch(addGameToDictionary(formValue));
+  const onButtonClick = async () => {
+    if (!formValue) return;
+
+    dispatch(addGameToDictionary(formValue));
+    dispatch(setGameToLoadingState(formValue));
+    const queryParameters: GetRecommendationsByGameIdRequest = {
+      steam_game_id: formValue,
+      max_review_count: 750,
+    };
+
+    const response = await fetch<
+      GetRecommendationsByGameIdRequest,
+      GetRecommendationsByGameIdResponse
+    >("/recommendations", queryParameters);
+
+    dispatch(
+      addRecommendations({
+        gameId: formValue,
+        recommendations: response.result,
+      }),
+    );
   };
 
   return { formValue, isButtonDisabled, handleScrapeFormUpdate, onButtonClick };

@@ -1,6 +1,8 @@
 ﻿from dataclasses import dataclass
 from datetime import datetime
 
+from src.domain.dtos import FinalResultDto
+
 
 @dataclass
 class LastScrapedDateRequestDto:
@@ -15,4 +17,12 @@ class LastScrapedDateRequestDto:
 class LastScrapedDateResponseDto:
     steam_game_id: int
     last_scraped_date: datetime | None
+    result: FinalResultDto | None
     correlation_id: str
+
+    def __post_init__(self):
+        if isinstance(self.result, dict):
+            self.result = FinalResultDto(**self.result)
+
+        if isinstance(self.last_scraped_date, str):
+            self.last_scraped_date = datetime.strptime(self.last_scraped_date[:10], "%Y-%m-%d")
