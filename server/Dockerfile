@@ -1,14 +1,14 @@
 ﻿FROM python:3.11-slim
+
+# Set working directory
 WORKDIR /app
 
-# Install dependencies + Firefox + GeckoDriver
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     curl \
     unzip \
-    ca-certificates \
     firefox-esr \
-    geckodriver \
     libgtk-3-0 \
     libdbus-glib-1-2 \
     libasound2 \
@@ -21,15 +21,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxss1 \
     libxtst6 \
     libxshmfence1 \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Set environment variables (optional but helps)
-ENV FIREFOX_BIN=/usr/bin/firefox
-ENV GECKODRIVER_BIN=/usr/bin/geckodriver
+# Install latest GeckoDriver manually
+ENV GECKODRIVER_VERSION v0.34.0
 
-# Install Python dependencies
+RUN wget -q "https://github.com/mozilla/geckodriver/releases/download/$GECKODRIVER_VERSION/geckodriver-$GECKODRIVER_VERSION-linux64.tar.gz" && \
+    tar -xzf "geckodriver-$GECKODRIVER_VERSION-linux64.tar.gz" -C /usr/local/bin && \
+    chmod +x /usr/local/bin/geckodriver && \
+    rm "geckodriver-$GECKODRIVER_VERSION-linux64.tar.gz"
+
+# Copy and install Python requirements
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy app files
 COPY . .
 
 CMD ["python", "main.py"]
