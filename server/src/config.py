@@ -27,5 +27,5 @@ class Config(Enum):
     CUTOFF_DATE = datetime.strptime(f'2018-05-26', "%Y-%m-%d")
     TARGET_REVIEW_COUNT = 100
 
-    CHROME_PATH = "/usr/bin/chromium"
-    CHROME_DRIVER_PATH = "/usr/bin/chromedriver"
+    BROWSER_PATH = "/usr/bin/firefox"
+    DRIVER_PATH = "/usr/bin/geckodriver"
