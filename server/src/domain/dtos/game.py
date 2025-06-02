@@ -23,3 +23,6 @@ class LastScrapedDateResponseDto:
     def __post_init__(self):
         if isinstance(self.result, dict):
             self.result = FinalResultDto(**self.result)
+
+        if isinstance(self.last_scraped_date, str):
+            self.last_scraped_date = datetime.strptime(self.last_scraped_date[:10], "%Y-%m-%d")

@@ -2,10 +2,12 @@
 import time
 from abc import ABC
 
+from src import Config
 from src.application.base import RequestHandlerBase
 from src.application.common import Request, Response
 from src.application.kafka.consumers import LastScrapedDateConsumer, FinalResultConsumer
 from src.application.kafka.producers import LastScrapedDateProducer
+from src.application.services.scraper_service import ScraperDto
 from src.application.services.scraper_service.scraper_service import ScraperService
 from src.application.view_models import RecommendationVm
 from src.domain.dtos import LastScrapedDateRequestDto, LastScrapedDateResponseDto, FinalResultDto
@@ -60,10 +62,12 @@ class GetRecommendationsQueryHandler(RequestHandlerBase[GetRecommendationsQuery,
                 RecommendationVm(**recommendation.to_dict()) for recommendation in response.result.recommendations
             ])
 
-        last_scraped_date = response.last_scraped_date
-        self.__scraper_service.scrape(
-            request.payload.steam_game_id, request.correlation_id
-        )
+        self.__scraper_service.scrape(dto=ScraperDto(
+            game_id=request.payload.steam_game_id,
+            max_reviews_count=request.payload.max_review_count,
+            last_scraped_date=response.last_scraped_date,
+            correlation_id=request.correlation_id
+        ))
 
         while True:
             final_result = self.__final_result_consumer.consume()

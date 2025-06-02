@@ -1,6 +1,7 @@
 ﻿import { useDispatch, useSelector } from "react-redux";
 import {
   selectActiveGameId,
+  selectActiveRecommendations,
   selectActiveTab,
   selectIsAwaitingResultFromScrape,
   setActiveTab,
@@ -11,6 +12,7 @@ export const useBarchart = () => {
   const dispatch = useDispatch<AppDispatch>();
   const gameId = useSelector(selectActiveGameId);
   const activeTabId = useSelector(selectActiveTab);
+  const recommendations = useSelector(selectActiveRecommendations);
 
   const isLoading =
     useSelector((state: RootState) =>
@@ -21,5 +23,5 @@ export const useBarchart = () => {
     dispatch(setActiveTab(tabId));
   };
 
-  return { isLoading, gameId, activeTabId, onTabClick };
+  return { isLoading, gameId, activeTabId, recommendations, onTabClick };
 };

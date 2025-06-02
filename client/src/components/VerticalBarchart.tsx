@@ -6,16 +6,16 @@
   XAxis,
   YAxis,
 } from "recharts";
+import type { BarchartProps } from "../shared/types.ts";
+import { Tooltip as CustomTooltip } from "./Tooptip.tsx";
 
-const data = [
-  { name: "0-49", value1: 80, value2: 20 },
-  { name: "50-99", value1: 60, value2: 40 },
-  { name: "100-299", value1: 80, value2: 20 },
-  { name: "300-499", value1: 30, value2: 70 },
-  { name: "500+", value1: 60, value2: 40 },
-];
+export const VerticalBarchart = ({ recommendations }: BarchartProps) => {
+  const data = recommendations.map((recommendation) => ({
+    name: recommendation.time_interval,
+    value1: recommendation.sum_recommended,
+    value2: recommendation.sum_not_recommended,
+  }));
 
-export const VerticalBarchart = () => {
   return (
     <ResponsiveContainer width="100%" height="50%">
       <BarChart
@@ -23,8 +23,18 @@ export const VerticalBarchart = () => {
         margin={{ top: 20, right: 30, left: 20, bottom: 50 }}
       >
         <XAxis dataKey="name" type="category" />
-        <YAxis type="number" domain={[0, 100]} />
-        <Tooltip />
+        <YAxis
+          type="number"
+          domain={[
+            0,
+            Math.max(
+              ...recommendations.map((rec) =>
+                Math.max(rec.sum_recommended, rec.sum_not_recommended),
+              ),
+            ),
+          ]}
+        />
+        <Tooltip content={<CustomTooltip showPercentage={false} />} />
         <Bar
           dataKey="value1"
           stackId="a"
@@ -35,7 +45,7 @@ export const VerticalBarchart = () => {
           dataKey="value2"
           stackId="b"
           fill="#f50057"
-          animationEasing="ease-out"
+          animationEasing="ease-in"
         />
       </BarChart>
     </ResponsiveContainer>

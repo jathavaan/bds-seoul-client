@@ -6,16 +6,21 @@
   XAxis,
   YAxis,
 } from "recharts";
+import type { BarchartProps } from "../shared/types.ts";
+import { Tooltip as CustomTooltip } from "./Tooptip.tsx";
 
-const data = [
-  { name: "0-49", value1: 80, value2: 20 },
-  { name: "50-99", value1: 60, value2: 40 },
-  { name: "100-299", value1: 80, value2: 20 },
-  { name: "300-499", value1: 30, value2: 70 },
-  { name: "500+", value1: 60, value2: 40 },
-];
+export const HorizontalBarchart = ({ recommendations }: BarchartProps) => {
+  const data = recommendations.map((recommendation) => {
+    const total =
+      recommendation.sum_recommended + recommendation.sum_not_recommended;
+    return {
+      name: recommendation.time_interval,
+      value1: total > 0 ? (recommendation.sum_recommended / total) * 100 : 0,
+      value2:
+        total > 0 ? (recommendation.sum_not_recommended / total) * 100 : 0,
+    };
+  });
 
-export const HorizontalBarchart = () => {
   return (
     <ResponsiveContainer width="100%" height="50%">
       <BarChart
@@ -25,7 +30,7 @@ export const HorizontalBarchart = () => {
       >
         <XAxis type="number" domain={[0, 100]} />
         <YAxis type="category" dataKey="name" />
-        <Tooltip />
+        <Tooltip content={<CustomTooltip showPercentage={true} />} />
         <Bar
           dataKey="value1"
           stackId="a"

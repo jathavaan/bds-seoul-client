@@ -19,7 +19,6 @@ export const useGameListItem = (gameId: number) => {
   const isExpanded = useSelector((state: RootState) =>
     selectIsExpandedInSidebar(state, gameId),
   );
-
   const isActiveGame = useSelector(selectActiveGameId) == gameId;
 
   const isLoading = useSelector((state: RootState) =>
