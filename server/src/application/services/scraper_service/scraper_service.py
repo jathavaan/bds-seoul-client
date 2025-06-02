@@ -77,7 +77,7 @@ class ScraperService:
 
     def __parse_review(
             self,
-            container: webdriver,
+            container: WebElement,
             review_count: int,
             max_review_count: int,
             last_scraped_date: datetime | None,
