@@ -28,4 +28,4 @@ class Config(Enum):
     TARGET_REVIEW_COUNT = 100
 
     BROWSER_PATH = "/usr/bin/firefox"
-    DRIVER_PATH = "/usr/bin/geckodriver"
+    DRIVER_PATH = "/usr/local/bin/geckodriver"
