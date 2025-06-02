@@ -7,6 +7,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         chromium \
         wget \
+        jq \
         unzip \
         curl \
         ca-certificates \
@@ -23,11 +24,13 @@ RUN apt-get update && \
 
 # Get Chromium version and download matching ChromeDriver
 RUN CHROMIUM_VERSION=$(chromium --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+') && \
-    echo "Detected Chromium version: $CHROMIUM_VERSION" && \
+    echo "Full Chromium version: $CHROMIUM_VERSION" && \
     MAJOR_VERSION=$(echo $CHROMIUM_VERSION | cut -d '.' -f 1) && \
-    DRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | grep -B 5 "\"version\": \"$CHROMIUM_VERSION\"" | grep -oP 'https://.*?chromedriver-linux64.zip') && \
-    echo "Downloading: $DRIVER_VERSION" && \
-    wget -O /tmp/chromedriver.zip "$DRIVER_VERSION" && \
+    echo "Using major version: $MAJOR_VERSION" && \
+    DRIVER_URL=$(curl -s https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json | \
+        jq -r --arg ver "$MAJOR_VERSION" '.channels | to_entries[] | select(.value.version | startswith($ver)) | .value.downloads.chromedriver[] | select(.platform=="linux64") | .url') && \
+    echo "Downloading driver from: $DRIVER_URL" && \
+    wget -O /tmp/chromedriver.zip "$DRIVER_URL" && \
     unzip /tmp/chromedriver.zip -d /tmp/ && \
     mv /tmp/chromedriver-linux64/chromedriver /usr/bin/chromedriver && \
     chmod +x /usr/bin/chromedriver && \
