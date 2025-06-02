@@ -17,10 +17,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxshmfence1 \
     libatk-bridge2.0-0 \
     libgtk-3-0 \
-    chromium \
-    chromium-driver \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Chromium manually
+RUN apt-get update && \
+    apt-get install -y chromium chromium-driver && \
+    rm -rf /var/lib/apt/lists/*
+    
 # Optional: Link chromedriver if needed
 RUN ln -sf /usr/lib/chromium/chromedriver /usr/bin/chromedriver
 
