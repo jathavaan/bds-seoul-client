@@ -1,7 +1,7 @@
 ﻿from dependency_injector import containers, providers
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 
 from src import Config
 from src.application.common import Logger
@@ -10,17 +10,17 @@ from src.application.kafka.producers import LastScrapedDateProducer, ReviewProdu
 from src.application.services.scraper_service import ScraperService
 
 
-def driver_setup() -> webdriver.Chrome:
+def driver_setup() -> webdriver.Firefox:
     options = Options()
-    options.binary_location = Config.CHROME_PATH.value
+    options.binary_location = Config.BROWSER_PATH.value
     options.add_argument("--headless")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    service = Service(Config.CHROME_DRIVER_PATH.value)
+    service = Service(Config.DRIVER_PATH.value)
 
-    driver = webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Firefox(service=service, options=options)
     return driver
 
 
