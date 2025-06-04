@@ -31,3 +31,4 @@ class Config(Enum):
 
     BROWSER_PATH = "/usr/bin/firefox-esr"
     DRIVER_PATH = "/usr/local/bin/geckodriver"
+    GECKODRIVER_HOST = "http://localhost:4444"

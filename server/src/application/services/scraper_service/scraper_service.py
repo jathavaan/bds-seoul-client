@@ -15,13 +15,13 @@ from src.domain.dtos.review import ReviewDto
 
 
 class ScraperService:
-    __driver: webdriver.Firefox
+    __driver: webdriver.Remote
     __url: str | None = None
     __game_id: int
     __logger: logging.Logger
     __review_producer: ReviewProducer
 
-    def __init__(self, logger: logging.Logger, driver: webdriver.Firefox, review_producer: ReviewProducer):
+    def __init__(self, logger: logging.Logger, driver: webdriver.Remote, review_producer: ReviewProducer):
         self.__driver = driver
         self.__logger = logger
         self.__review_producer = review_producer
