@@ -1,8 +1,6 @@
 ﻿from dependency_injector import containers, providers
 from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
 
 from src import Config
 from src.application.common import Logger
