@@ -41,8 +41,6 @@ class ScraperService:
 
         while True:
             has_more_reviews = self.__scroll_down(previous_review_count)
-            if not has_more_reviews:
-                break
 
             reviews: list[WebElement] = []
             try:
@@ -61,7 +59,7 @@ class ScraperService:
                 correlation_id=dto.correlation_id
             )
 
-            if is_done_extracting:
+            if not has_more_reviews or is_done_extracting:
                 break
 
             previous_review_count = current_review_count
