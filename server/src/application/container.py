@@ -15,7 +15,6 @@ def driver_setup() -> webdriver.Remote:
     options = Options()
     options.binary_location = Config.BROWSER_PATH.value
     options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
 
     driver = webdriver.Remote(
         command_executor=Config.GECKODRIVER_HOST.value,
