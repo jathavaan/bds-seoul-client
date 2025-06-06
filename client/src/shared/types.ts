@@ -35,18 +35,18 @@ export interface BarchartProps {
   recommendations: Recommendation[];
 }
 
+export type ProcessType =
+  | "cache_check"
+  | "scrape"
+  | "mapreduce"
+  | "cache_result";
+
 export type ProcessStatus =
   | "queued"
   | "in_progress"
   | "skipped"
   | "completed"
   | "failed";
-
-export type ProcessType =
-  | "cache_check"
-  | "scrape"
-  | "mapreduce"
-  | "cache_result";
 
 export interface GameListProps {
   steamGameId: number;

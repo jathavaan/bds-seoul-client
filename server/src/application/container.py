@@ -4,7 +4,7 @@ from selenium.webdriver.firefox.options import Options
 
 from src import Config
 from src.application.common import Logger
-from src.application.kafka.consumers import LastScrapedDateConsumer, FinalResultConsumer
+from src.application.kafka.consumers import LastScrapedDateConsumer, FinalResultConsumer, ProcessStatusConsumer
 from src.application.kafka.producers import LastScrapedDateProducer, ReviewProducer
 from src.application.services.scraper_service import ScraperService
 
@@ -26,6 +26,7 @@ class Container(containers.DeclarativeContainer):
     logger = providers.Singleton(Logger.get_logger, name="API", level=Config.LOGGING_LEVEL.value)
     driver = providers.Singleton(driver_setup)
 
+    process_status_consumer = providers.Singleton(ProcessStatusConsumer, logger=logger)
     last_scraped_date_producer = providers.Singleton(
         LastScrapedDateProducer, logger=logger)
     last_scraped_date_consumer = providers.Singleton(
