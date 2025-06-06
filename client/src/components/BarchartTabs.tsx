@@ -1,22 +1,11 @@
 ﻿import { CircularProgress, Tab, Tabs, Typography } from "@mui/material";
 import { HorizontalBarchart } from "./HorizontalBarchart.tsx";
-import { useBarchart, useKafkaWebsocket } from "../hooks";
+import { useBarchart } from "../hooks";
 import { VerticalBarchart } from "./VerticalBarchart.tsx";
-import { useEffect, useState } from "react";
 
 export const BarchartTabs = () => {
   const { isLoading, gameId, activeTabId, recommendations, onTabClick } =
     useBarchart();
-
-  const [messages, setMessages] = useState<string[]>([]);
-
-  useKafkaWebsocket((newMessage) => {
-    setMessages((prev) => [...prev, newMessage]);
-  });
-
-  useEffect(() => {
-    console.log(messages);
-  }, [messages]);
 
   return (
     <section
