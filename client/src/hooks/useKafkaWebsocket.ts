@@ -13,6 +13,7 @@ export const useKafkaWebsocket = () => {
     socket.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
+        console.log(message);
         const { gameId, type, status } = message;
         if (gameId && type && status) {
           dispatch(updateGameProcessStatus({ gameId, type, status }));

@@ -1,4 +1,6 @@
 ﻿import asyncio
+import logging
+
 from fastapi import APIRouter, WebSocket
 from starlette.websockets import WebSocketDisconnect
 
@@ -8,6 +10,7 @@ websocket_router = APIRouter()
 connected_clients: list[WebSocket] = []
 
 container = Container()
+logger = container.logger()
 process_status_consumer = container.process_status_consumer()
 
 
@@ -19,11 +22,12 @@ async def websocket_endpoint(websocket: WebSocket):
     async def publish_consumer():
         while True:
             success, result = await asyncio.to_thread(process_status_consumer.consume)
-            if success and result is not None:
+            if success:
+                game_id, process_type, process_status = result
                 await websocket.send_json({
-                    "game_id": int(result.get("game_id")),
-                    "type": result.get("type"),
-                    "status": result.get("status"),
+                    "gameId": game_id,
+                    "type": process_type.value,
+                    "status": process_status.value,
                 })
 
             await asyncio.sleep(0.1)

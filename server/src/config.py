@@ -24,7 +24,7 @@ class Config(Enum):
     KAFKA_MAX_POLL_TIMEOUT = 86400000
     KAFKA_HEARTBEAT_INTERVAL = 3000
 
-    LOGGING_LEVEL = logging.INFO
+    LOGGING_LEVEL = logging.DEBUG
     LOGGER_WIDTH_OFFSET = 90
     SEQ_URL = f"http://{os.getenv('SEQ_SERVER')}:{os.getenv('SEQ_PORT')}"
     SEQ_LOG_BATCH_SIZE = 1

@@ -68,7 +68,7 @@ const GameListItem = (props: GameListProps) => {
               })}
             />
           ) : (
-            <CheckIcon />
+            <CheckIcon color="success" />
           )}
         </ListItemIcon>
         <ListItemIcon>
@@ -96,9 +96,8 @@ const GameListItem = (props: GameListProps) => {
             statusText="Running MapReduce job"
             status={gameStatuses["mapreduce"]}
           />
-          <ProcessStatusItem statusText="Caching result" status="queued" />
           <ProcessStatusItem
-            statusText="Waiting for response"
+            statusText="Caching result"
             status={gameStatuses["cache_result"]}
           />
         </List>
@@ -139,7 +138,7 @@ const ProcessStatusItem = (props: ProcessStatusProps) => {
             case "skipped":
               return <SkipNextIcon sx={{ color: "gray" }} />;
             case "completed":
-              return <CheckIcon sx={{ color: "green" }} />;
+              return <CheckIcon sx={{ color: "white" }} />;
             case "failed":
               return <ErrorOutlineIcon sx={{ color: "red" }} />;
             default:

@@ -4,7 +4,7 @@ from confluent_kafka import Consumer
 
 from src import Config
 from src.application.base import ConsumerBase
-from src.application.base.kafka_base import T
+from src.domain.enums import ProcessType, ProcessStatus
 
 
 class ProcessStatusConsumer(ConsumerBase[tuple[int, str, str] | None]):
@@ -31,7 +31,7 @@ class ProcessStatusConsumer(ConsumerBase[tuple[int, str, str] | None]):
             f"with group ID {Config.KAFKA_GROUP_ID.value}, subscribed to topic(s): {', '.join(topics)}"
         )
 
-    def consume(self) -> tuple[bool, tuple[int, str, str] | None]:
+    def consume(self) -> tuple[bool, tuple[int, ProcessType, ProcessStatus] | None]:
         message = self.__consumer.poll(Config.KAFKA_POLL_TIMEOUT.value)
 
         if not message:
@@ -43,12 +43,15 @@ class ProcessStatusConsumer(ConsumerBase[tuple[int, str, str] | None]):
 
         value = message.value().decode("utf-8")
         parts = value.split(",", 2)
+
         if len(parts) != 3:
             self.__logger.error(f"Malformed message: {value}")
             return False, None
+
         try:
-            result = (int(parts[0]), parts[1], parts[2])
-        except Exception as e:
+            result = (int(parts[0]), ProcessType.from_string(parts[1]), ProcessStatus.from_string(parts[2]))
+            self.__logger.info(result)
+        except ValueError as e:
             self.__logger.error(f"Error parsing message: {e}")
             return False, None
 
@@ -56,4 +59,4 @@ class ProcessStatusConsumer(ConsumerBase[tuple[int, str, str] | None]):
 
     def close(self) -> None:
         self.__consumer.close()
-        self.__logger.info("Shutting down final result consumer")
+        self.__logger.info("Shutting down Final Result Producer")

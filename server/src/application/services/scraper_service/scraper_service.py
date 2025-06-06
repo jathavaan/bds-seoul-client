@@ -10,8 +10,10 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.ui import WebDriverWait
 
 from src.application.kafka.producers.review_producer import ReviewProducer
+from src.domain.enums import ProcessStatus, ProcessType
 from .scraper_dto import ScraperDto
 from src.domain.dtos.review import ReviewDto
+from ...kafka.producers import ProcessStatusProducer
 
 
 class ScraperService:
@@ -20,13 +22,24 @@ class ScraperService:
     __game_id: int
     __logger: logging.Logger
     __review_producer: ReviewProducer
+    __process_status_producer: ProcessStatusProducer
 
-    def __init__(self, logger: logging.Logger, driver: webdriver.Remote, review_producer: ReviewProducer):
+    def __init__(
+            self,
+            logger: logging.Logger,
+            driver: webdriver.Remote,
+            review_producer: ReviewProducer,
+            process_status_producer: ProcessStatusProducer
+    ):
         self.__driver = driver
         self.__logger = logger
         self.__review_producer = review_producer
+        self.__process_status_producer = process_status_producer
 
     def scrape(self, dto: ScraperDto):
+        self.__process_status_producer.produce((dto.game_id, ProcessType.CACHE_CHECK, ProcessStatus.COMPLETED))
+        self.__process_status_producer.produce((dto.game_id, ProcessType.SCRAPE, ProcessStatus.IN_PROGRESS))
+
         self.__set_game_id(dto.game_id)
         self.__logger.info(
             f"Scraping Steam game ID {dto.game_id} until {dto.max_reviews_count} reviews have been scraped or review date is {dto.last_scraped_date} [{self.__url}]"
@@ -65,9 +78,12 @@ class ScraperService:
             previous_review_count = current_review_count
 
         end_time = time.time()
+
         self.__logger.info(
             f"Scraping finished for {dto.game_id} in {end_time - start_time:.2f} seconds."
         )
+
+        self.__process_status_producer.produce((dto.game_id, ProcessType.SCRAPE, ProcessStatus.COMPLETED))
 
     def quit_driver(self):
         self.__logger.info("Shut down Selenium driver")
