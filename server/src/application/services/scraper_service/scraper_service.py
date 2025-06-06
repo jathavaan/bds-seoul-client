@@ -15,13 +15,13 @@ from src.domain.dtos.review import ReviewDto
 
 
 class ScraperService:
-    __driver: webdriver.Edge
+    __driver: webdriver.Remote
     __url: str | None = None
     __game_id: int
     __logger: logging.Logger
     __review_producer: ReviewProducer
 
-    def __init__(self, logger: logging.Logger, driver: webdriver.Edge, review_producer: ReviewProducer):
+    def __init__(self, logger: logging.Logger, driver: webdriver.Remote, review_producer: ReviewProducer):
         self.__driver = driver
         self.__logger = logger
         self.__review_producer = review_producer
@@ -41,8 +41,6 @@ class ScraperService:
 
         while True:
             has_more_reviews = self.__scroll_down(previous_review_count)
-            if not has_more_reviews:
-                break
 
             reviews: list[WebElement] = []
             try:
@@ -61,7 +59,7 @@ class ScraperService:
                 correlation_id=dto.correlation_id
             )
 
-            if is_done_extracting:
+            if not has_more_reviews or is_done_extracting:
                 break
 
             previous_review_count = current_review_count
@@ -159,9 +157,11 @@ class ScraperService:
 
     def __scroll_down(self, old_review_count: int) -> bool:
         try:
-            self.__driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            self.__driver.execute_script(
+                "window.scrollTo(0, document.body.scrollHeight);")
             WebDriverWait(self.__driver, 2).until(
-                lambda d: len(d.find_elements(By.CLASS_NAME, "apphub_CardContentMain")) > old_review_count
+                lambda d: len(d.find_elements(
+                    By.CLASS_NAME, "apphub_CardContentMain")) > old_review_count
             )
             return True
         except TimeoutException:

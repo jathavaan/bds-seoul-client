@@ -29,5 +29,6 @@ class Config(Enum):
     CUTOFF_DATE = datetime.strptime(f'2014-05-26', "%Y-%m-%d")  # TODO: Remove this. Cutoff date is dynamic
     TARGET_REVIEW_COUNT = 10000
 
-    EDGE_PATH = "/usr/bin/microsoft-edge"
-    EDGE_DRIVER_PATH = "/usr/bin/msedgedriver"
+    BROWSER_PATH = "/usr/bin/firefox-esr"
+    DRIVER_PATH = "/usr/local/bin/geckodriver"
+    GECKODRIVER_HOST = "http://localhost:4444"
