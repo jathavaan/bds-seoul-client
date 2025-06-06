@@ -15,8 +15,8 @@ import ScheduleIcon from "@mui/icons-material/Schedule";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
-import type { GameListProps, ProcessStatusProps } from "./component.types.ts";
 import { useGameList, useGameListItem } from "../hooks";
+import type { GameListProps, ProcessStatusProps } from "../shared/types.ts";
 
 export const GameList = () => {
   const { games } = useGameList();
