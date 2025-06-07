@@ -50,7 +50,6 @@ class ProcessStatusConsumer(ConsumerBase[tuple[int, str, str] | None]):
 
         try:
             result = (int(parts[0]), ProcessType.from_string(parts[1]), ProcessStatus.from_string(parts[2]))
-            self.__logger.info(result)
         except ValueError as e:
             self.__logger.error(f"Error parsing message: {e}")
             return False, None
