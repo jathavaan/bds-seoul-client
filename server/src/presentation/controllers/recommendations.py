@@ -13,11 +13,13 @@ last_scraped_date_consumer = container.last_scraped_date_consumer()
 review_producer = container.review_producer()
 final_result_consumer = container.final_result_consumer()
 scraper_service = container.scraper_service()
+process_status_producer = container.process_status_producer()
 
 get_recommendations_query_handler = GetRecommendationsQueryHandler(
     logger=logger,
     last_scraped_date_consumer=last_scraped_date_consumer,
     last_scraped_date_producer=last_scraped_date_producer,
+    process_status_producer=process_status_producer,
     final_result_consumer=final_result_consumer,
     scraper_service=scraper_service
 )

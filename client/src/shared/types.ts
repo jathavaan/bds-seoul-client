@@ -13,6 +13,7 @@ export interface Game {
   isExpandedInSidebar: boolean;
   isActiveInTableView: boolean;
   recommendations: Recommendation[];
+  processStatuses: Record<ProcessType, ProcessStatus>;
 }
 
 export interface Recommendation {
@@ -32,4 +33,26 @@ export interface GetRecommendationsByGameIdResponse {
 
 export interface BarchartProps {
   recommendations: Recommendation[];
+}
+
+export type ProcessType =
+  | "cache_check"
+  | "scrape"
+  | "mapreduce"
+  | "cache_result";
+
+export type ProcessStatus =
+  | "queued"
+  | "in_progress"
+  | "skipped"
+  | "completed"
+  | "failed";
+
+export interface GameListProps {
+  steamGameId: number;
+}
+
+export interface ProcessStatusProps {
+  statusText: string;
+  status: ProcessStatus;
 }

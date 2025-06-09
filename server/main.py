@@ -1,7 +1,7 @@
 ﻿from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from src.presentation.controllers import recommendations_router
+from src.presentation.controllers import recommendations_router, websocket_router
 
 app = FastAPI()
 app.add_middleware(
@@ -13,3 +13,4 @@ app.add_middleware(
 )
 
 app.include_router(recommendations_router)
+app.include_router(websocket_router)

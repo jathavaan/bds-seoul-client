@@ -1,6 +1,7 @@
 ﻿import { useDispatch, useSelector } from "react-redux";
 import {
   selectActiveGameId,
+  selectGameProcessStatuses,
   selectGames,
   selectIsAwaitingResultFromScrape,
   selectIsExpandedInSidebar,
@@ -25,6 +26,10 @@ export const useGameListItem = (gameId: number) => {
     selectIsAwaitingResultFromScrape(state, gameId),
   );
 
+  const gameStatuses = useSelector((state: RootState) =>
+    selectGameProcessStatuses(state, gameId),
+  );
+
   const handleSetActiveGameClick = () => {
     dispatch(setActiveGame(gameId));
   };
@@ -37,6 +42,7 @@ export const useGameListItem = (gameId: number) => {
     isExpanded,
     isLoading,
     isActiveGame,
+    gameStatuses,
     handleSetActiveGameClick,
     handleExpandGameClick,
   };

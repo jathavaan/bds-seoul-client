@@ -1,5 +1,10 @@
 ﻿import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { AppState, Recommendation } from "./types.ts";
+import type {
+  AppState,
+  ProcessStatus,
+  ProcessType,
+  Recommendation,
+} from "./types.ts";
 import type { RootState } from "./store.ts";
 
 const initialState: AppState = {
@@ -44,10 +49,16 @@ const appSlice = createSlice({
       const gameId = action.payload;
       state.games[gameId] = {
         gameId: gameId,
-        isAwaitingResultFromScrape: false, // TODO: Set to true when data is implemented
+        isAwaitingResultFromScrape: true,
         isExpandedInSidebar: true,
         isActiveInTableView: true,
         recommendations: [],
+        processStatuses: {
+          cache_check: "in_progress",
+          scrape: "queued",
+          mapreduce: "queued",
+          cache_result: "queued",
+        },
       };
     },
     setActiveTab: (state, action: PayloadAction<number>) => {
@@ -75,6 +86,19 @@ const appSlice = createSlice({
         state.games[gameId].isAwaitingResultFromScrape = true;
       }
     },
+    updateGameProcessStatus: (
+      state,
+      action: PayloadAction<{
+        gameId: number;
+        type: ProcessType;
+        status: ProcessStatus;
+      }>,
+    ) => {
+      const { gameId, type, status } = action.payload;
+      if (state.games[gameId]) {
+        state.games[gameId].processStatuses[type] = status;
+      }
+    },
   },
 });
 
@@ -86,6 +110,7 @@ export const {
   setActiveTab,
   addRecommendations,
   setGameToLoadingState,
+  updateGameProcessStatus,
 } = appSlice.actions;
 
 export const selectTriggerScrapeFormInput = (state: RootState) =>
@@ -104,5 +129,7 @@ export const selectActiveGameId = (state: RootState) =>
 export const selectActiveTab = (state: RootState) => state.appReducer.activeTab;
 export const selectActiveRecommendations = (state: RootState) =>
   state.appReducer.activeRecommendations;
+export const selectGameProcessStatuses = (state: RootState, gameId: number) =>
+  state.appReducer.games[gameId]?.processStatuses;
 
 export const appReducer = appSlice.reducer;

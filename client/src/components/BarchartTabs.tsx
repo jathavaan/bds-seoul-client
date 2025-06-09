@@ -6,6 +6,7 @@ import { VerticalBarchart } from "./VerticalBarchart.tsx";
 export const BarchartTabs = () => {
   const { isLoading, gameId, activeTabId, recommendations, onTabClick } =
     useBarchart();
+
   return (
     <section
       style={{

@@ -1,2 +1,3 @@
 from .final_result_consumer import FinalResultConsumer
 from .last_scraped_date_consumer import LastScrapedDateConsumer
+from .process_status_consumer import ProcessStatusConsumer

@@ -15,11 +15,12 @@ import ScheduleIcon from "@mui/icons-material/Schedule";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import CrisisAlertIcon from "@mui/icons-material/CrisisAlert";
-import type { GameListProps, ProcessStatusProps } from "./component.types.ts";
-import { useGameList, useGameListItem } from "../hooks";
+import { useGameList, useGameListItem, useKafkaWebsocket } from "../hooks";
+import type { GameListProps, ProcessStatusProps } from "../shared/types.ts";
 
 export const GameList = () => {
   const { games } = useGameList();
+  useKafkaWebsocket();
   return (
     <List>
       {Object.keys(games).length === 0 ? (
@@ -40,9 +41,11 @@ const GameListItem = (props: GameListProps) => {
     isExpanded,
     isLoading,
     isActiveGame,
+    gameStatuses,
     handleSetActiveGameClick,
     handleExpandGameClick,
   } = useGameListItem(props.steamGameId);
+
   return (
     <>
       <ListItemButton
@@ -64,7 +67,7 @@ const GameListItem = (props: GameListProps) => {
               })}
             />
           ) : (
-            <CheckIcon />
+            <CheckIcon color="success" />
           )}
         </ListItemIcon>
         <ListItemIcon>
@@ -80,19 +83,21 @@ const GameListItem = (props: GameListProps) => {
       </ListItemButton>
       <Collapse in={isExpanded} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
-          <ProcessStatusItem statusText="Checking cache" status="completed" />
+          <ProcessStatusItem
+            statusText="Checking cache"
+            status={gameStatuses["cache_check"]}
+          />
           <ProcessStatusItem
             statusText="Scraping Steam reviews"
-            status="completed"
+            status={gameStatuses["scrape"]}
           />
           <ProcessStatusItem
             statusText="Running MapReduce job"
-            status="in_progress"
+            status={gameStatuses["mapreduce"]}
           />
-          <ProcessStatusItem statusText="Caching result" status="queued" />
           <ProcessStatusItem
-            statusText="Waiting for response"
-            status="queued"
+            statusText="Caching result"
+            status={gameStatuses["cache_result"]}
           />
         </List>
       </Collapse>
@@ -132,7 +137,7 @@ const ProcessStatusItem = (props: ProcessStatusProps) => {
             case "skipped":
               return <SkipNextIcon sx={{ color: "gray" }} />;
             case "completed":
-              return <CheckIcon sx={{ color: "green" }} />;
+              return <CheckIcon sx={{ color: "white" }} />;
             case "failed":
               return <ErrorOutlineIcon sx={{ color: "red" }} />;
             default:
