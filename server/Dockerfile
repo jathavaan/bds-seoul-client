@@ -8,6 +8,7 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       firefox-esr \
+      curl \
       libgtk-3-0 \
       libdbus-glib-1-2 \
       libasound2 \
