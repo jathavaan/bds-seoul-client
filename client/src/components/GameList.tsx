@@ -20,6 +20,7 @@ import type { GameListProps, ProcessStatusProps } from "../shared/types.ts";
 
 export const GameList = () => {
   const { games } = useGameList();
+  useKafkaWebsocket();
   return (
     <List>
       {Object.keys(games).length === 0 ? (
@@ -44,8 +45,6 @@ const GameListItem = (props: GameListProps) => {
     handleSetActiveGameClick,
     handleExpandGameClick,
   } = useGameListItem(props.steamGameId);
-
-  useKafkaWebsocket();
 
   return (
     <>
