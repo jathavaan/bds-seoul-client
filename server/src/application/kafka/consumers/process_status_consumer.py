@@ -58,4 +58,4 @@ class ProcessStatusConsumer(ConsumerBase[tuple[int, str, str] | None]):
 
     def close(self) -> None:
         self.__consumer.close()
-        self.__logger.info("Shutting down Final Result Producer")
+        self.__logger.info("Shutting down Process Status Consumer")
