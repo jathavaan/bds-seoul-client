@@ -26,13 +26,13 @@ containers. The API is written in Python using FastAPI, and the UI is built with
 1. Clone the repository:
 
    ```powershell
-   git clone https://github.com/jathavaan/bds-seoul-hadoop.git
+   git clone https://github.com/jathavaan/bds-seoul-client.git
    ```
 
 2. Navigate to the project directory:
 
    ```powershell
-    cd bds-seoul-hadoop
+    cd bds-seoul-client
     ```
 
 ## Setup
@@ -67,6 +67,7 @@ There are two different setups for this project: one for local development and o
    ```
 
 After this has been done you can check out the [Starting the Services](#starting-the-services) section to start the
+services.
 
 ### Raspberry Pi setup
 
