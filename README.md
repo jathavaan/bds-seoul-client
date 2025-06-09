@@ -5,7 +5,10 @@ containers. The API is written in Python using FastAPI, and the UI is built with
 
 > [!NOTE]
 > Make sure `bds-seoul-mariadb` and `bds-seoul-hadoop` are up and running before starting the UI and API. This is the
-> third and final step in startup process.
+> third and final step in startup process. This is the correct order to start things up in:
+> 1. [bds-seoul-mariadb](https://github.com/jathavaan/bds-seoul-mariadb)
+> 2. [bds-seoul-hadoop](https://github.com/jathavaan/bds-seoul-hadoop)
+> 3. [bds-seoul-client](https://github.com/jathavaan/bds-seoul-client)
 
 ## Table of Contents
 
