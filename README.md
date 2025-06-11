@@ -1,7 +1,41 @@
 # Big Data Systems Team Seoul - Client and Server
 
-This repository contains the code for the UI and API of the Big Data Systems project. Everything runs on docker
-containers. The API is written in Python using FastAPI, and the UI is built with React.
+> [!NOTE]
+> The authors of this project are:
+> - [Jathavaan Shankarr](https://github.com/jathavaan)
+> - [NaHyeonjun](https://github.com/guitarchibi)
+> - [Einar Myhrvold](https://github.com/einartmy01)
+
+
+
+
+
+This is the term project in the course Big Data Systems at Pusan National University, South Korea. Our project scrapes
+Steam reviews, processes them using a Hadoop cluster, and stores the results in a MariaDB database. The project is
+divided into three parts:
+
+1. **bds-seoul-mariadb**: This repository contains the code for the MariaDB database that stores the processed data.
+2. **bds-seoul-hadoop**: This repository contains the code for the Hadoop cluster that processes the data.
+3. **bds-seoul-client**: This repository contains the code for the UI and API that interact with the MariaDB database
+   and the Hadoop cluster.
+
+Each part is deployed on a Raspberry Pi, and the entire system is designed to work together seamlessly.
+
+The frontend is built using React and the backend is built using Python. This combination allowed us to display the
+result from the map reduce job in a user-friendly way.
+
+<div align="center">
+  <img src="./.github/images/reviews.gif" alt="GIF of reviews" />
+</div>
+
+Kafka was used to send messages between nodes in the cluster, and WebSockets was used to give the user real-time updates
+on their scraper job. We also implemented a form for caching to reduce the processing time needed for each request.
+
+<div align="center">
+  <img src="./.github/images/cached%20reviews.gif" alt="GIF of reviews" />
+</div>
+
+
 
 > [!NOTE]
 > Make sure `bds-seoul-mariadb` and `bds-seoul-hadoop` are up and running before starting the UI and API. This is the
